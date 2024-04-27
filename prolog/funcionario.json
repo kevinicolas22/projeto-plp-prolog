@@ -1,0 +1,27 @@
+[
+  {
+    "cpf":"a",
+    "data_ingresso":"a",
+    "endereco":"a",
+    "nome":"a",
+    "salario":"a",
+    "telefone":"a"
+  },
+  {
+    "cpf":"c",
+    "data_ingresso":"f",
+    "endereco":"d",
+    "nome":"b",
+    "salario":"g",
+    "telefone":"e"
+  },
+  {
+    "cpf":"CPF do Funcionario",
+    "data_ingresso":"Data de Ingresso do Funcionario",
+    "endereco":"Endereço do Funcionario",
+    "id":1,
+    "nome":"Nome do Funcionario",
+    "salario":"Salário do Funcionario",
+    "telefone":"Telefone do Funcionario"
+  }
+]

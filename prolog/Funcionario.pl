@@ -1,4 +1,4 @@
-:- module(funcionario, [funcionario/7]).
+:- module(Funcionario, [funcionario/7]).
 
 :- dynamic funcionario/7.
 
