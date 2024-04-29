@@ -9,7 +9,7 @@
 :- use_module(funcionario_service).
 :- use_module(funcionario).
 :- use_module(library(ansi_term)).
-:- use_module('FuncionarioService', [inicializar_arquivo_json/0, adicionar_funcionario/2, criar_funcionario/1]).
+:- use_module('FuncionarioService', [adicionar_funcionario/2, criar_funcionario/1, ler_funcionario/1, remover_funcionario/1]). 
 
 
 menu_gestor(MenuPrincipal) :-
@@ -28,20 +28,21 @@ menu_gestor(MenuPrincipal) :-
     read_line_to_string(user_input, Opcao),
     escolher_opcao_gestor(Opcao, MenuPrincipal).
 
-escolher_opcao_gestor(Opcao, MenuPrincipal) :-
-    (Opcao = "1" ->
-        menu_gestor_g(MenuPrincipal)
-    ; Opcao = "2" ->
-        menu_funcionario_g(MenuPrincipal)
-    ; Opcao = "3" ->
-        menu_maquina_g(MenuPrincipal)
-    ; Opcao = "4" ->
-        menu_financeiro_g(MenuPrincipal)
-    ; Opcao = "5" ->
-        MenuPrincipal
-    ;
-        writeln('Opção invalida. Por favor, escolha novamente.'),
-        menu_gestor(MenuPrincipal)
+escolher_opcao_gestor(Opcao, _) :-
+    (   Opcao = "1" ->
+            menu_gestor_g(MenuPrincipal)
+    ;   Opcao = "2" ->
+            menu_funcionario_g(MenuPrincipal)
+    ;   Opcao = "3" ->
+            menu_maquina_g(MenuPrincipal)
+    ;   Opcao = "4" ->
+            menu_financeiro_g(MenuPrincipal)
+    ;   Opcao = "5" ->
+            writeln('Encerrando o programa...'),
+            halt
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+            menu_gestor(MenuPrincipal),
+            fail 
     ).
 
 
@@ -85,43 +86,12 @@ escolher_opcao_funcionario_g(Opcao, MenuPrincipal) :-
 
 
 criar_funcionario(MenuPrincipal) :-
-    FuncionarioService:inicializar_arquivo_json,
     FuncionarioService:criar_funcionario(NovoFuncionario),
-    writeln('------------FUNCIONARIO------------'),
     writeln('Nova senha de acesso: '),
     senha_valida(SenhaFunc),
     FuncionarioService:adicionar_funcionario(NovoFuncionario, SenhaFunc),
-    writeln('\n Funcionario criado com sucesso!'),
     sleep(2),
-    menu_funcionario_g(MenuPrincipal).
-
-
-ler_todos_funcionarios(MenuPrincipal) :-
-    writeln('------------FUNCIONARIOS------------'),
-    listar_todos_funcionarios,
-    writeln('\n\n [0] Voltar'),
-    read(Op),
-    (   Op = "0" ->
-            menu_funcionario_g(MenuPrincipal)
-    ;   writeln('Opção inválida. Por favor, escolha novamente.'),
-        ler_todos_funcionarios(MenuPrincipal)
-    ).
-
-
-ler_funcionario_opcao(MenuPrincipal) :-
-    writeln('>> Digite o ID do funcionário que deseja buscar:'),
-    read(Id),
-    writeln('Procurando...\n'),
-    sleep(2),
-    ler_funcionario_por_id(Id),
-    writeln('\n\n [0] Voltar'),
-    read(Op),
-    (   Op = "0" ->
-            menu_funcionario_g(MenuPrincipal)
-    ;   writeln('Opção inválida. Por favor, escolha novamente.'),
-        ler_funcionario_opcao(MenuPrincipal)
-    ).
-
+    menu_gestor(MenuPrincipal).
 
 atualizar_funcionario_opcao(MenuPrincipal) :-
     writeln('>> Digite o ID do funcionário que deseja atualizar:'),
@@ -170,15 +140,44 @@ atualizar_funcionario_opcao(MenuPrincipal) :-
     sleep(2),
     menu_funcionario_g(MenuPrincipal).
 
+ler_todos_funcionarios(MenuPrincipal) :-
+    writeln('------------FUNCIONARIOS------------'),
+    listar_todos_funcionarios,
+    writeln('\n\n [0] Voltar'),
+    read(Op),
+    (   Op = "0" ->
+            menu_funcionario_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        ler_todos_funcionarios(MenuPrincipal)
+    ).
 
-removerFuncionarioOpcao(MenuPrincipal) :-
-    writeln('>> Digite o ID do funcionário que deseja remover:'),
-    read(Id),
-    removerFuncionarioPorId(Id),
-    writeln('Removendo...'),
+ler_funcionario_opcao(MenuPrincipal) :-
+    writeln('>> Digite o CPF do funcionario que deseja buscar:'),
+    read_line_to_string(user_input, CPF),
+    writeln('Procurando...\n'),
     sleep(2),
-    writeln('Funcionário removido com sucesso!'),
+    ler_funcionario(CPF), % Alteração feita aqui
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_funcionario_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        ler_funcionario_opcao(MenuPrincipal)
+    ).
+    
+remover_funcionario_opcao(MenuPrincipal) :-
+    writeln('>> Digite o CPF do funcionario que deseja remover:'),
+    read_line_to_string(user_input, CPF),
+    writeln('Removendo...\n'),
     sleep(2),
-    menuFuncionarioG(MenuPrincipal).
+    remover_funcionario(CPF),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_funcionario_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        remover_funcionario_opcao(MenuPrincipal)
+    ).
+
 
 
