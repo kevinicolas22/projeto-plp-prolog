@@ -1,14 +1,13 @@
+
 :- module(mainGestor, [menu_gestor/1]).
 
 :- use_module(maquina).
 :- use_module(text_util).
 :- use_module(maquina_service).
 :- use_module(system).
-:- use_module(gestor_service).
 :- use_module(gestor).
 :- use_module(library(ansi_term)).
-:- use_module('GestorService', [inicializar_arquivo_json/0, adicionar_gestor/2, criar_gestor/1]).
-
+:- use_module(gestor_service, [inicializar_arquivo_json/0, adicionar_gestor/2, criar_gestor/1]).
 
 menu_gestor(MenuPrincipal) :-
     writeln('----------------------------------------------'),
@@ -42,29 +41,26 @@ escolher_opcao_gestor(Opcao, MenuPrincipal) :-
         menu_gestor(MenuPrincipal)
     ).
 
+% GESTOR 
 
-    % GESTOR 
+menu_gestor_g(MenuPrincipal) :-
+    writeln('---------------------------------------------'),
+    writeln('          Opcoes Gestor Codefit              '),
+    writeln('---------------------------------------------'),
+    writeln('|                                            |'),
+    writeln('|   [1] Criar Gestor                         |'),
+    writeln('|   [2] Atualizar Gestor                     |'),
+    writeln('|   [3] Listar Gestor                        |'),
+    writeln('|   [4] Consultar Gestor                     |'),
+    writeln('|   [5] Remover Gestor                       |'), 
+    writeln('|   [6] Voltar para o menu                   |'),
+    writeln('|                                            |'),
+    writeln('|   > Digite a opcao:                        |'),
+    writeln('----------------------------------------------'),
+    read_line_to_string(user_input, Opcao),
+    escolher_opcao_gestor_g(Opcao, MenuPrincipal).
 
-    :- use_module(library(system)).
-
-    menu_gestor_g(MenuPrincipal) :-
-        writeln('---------------------------------------------'),
-        writeln('          Opcoes Gestor Codefit              '),
-        writeln('---------------------------------------------'),
-        writeln('|                                            |'),
-        writeln('|   [1] Criar Gestor                         |'),
-        writeln('|   [2] Atualizar Gestor                     |'),
-        writeln('|   [3] Listar Gestor                        |'),
-        writeln('|   [4] Consultar Gestor                     |'),
-        writeln('|   [5] Remover Gestor                       |'), 
-        writeln('|   [6] Voltar para o menu                   |'),
-        writeln('|                                            |'),
-        writeln('|   > Digite a opcao:                        |'),
-        writeln('----------------------------------------------'),
-        read_line_to_string(user_input, Opcao),
-        escolher_opcao_gestor_g(Opcao, MenuPrincipal).
-
-        escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
+escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
     (   Opcao = "1" ->
             criar_gestor(MenuPrincipal)
     ;   Opcao = "2" ->
@@ -82,20 +78,16 @@ escolher_opcao_gestor(Opcao, MenuPrincipal) :-
             menu_gestor_g(MenuPrincipal)
     ).
 
-
-    criar_gestor(MenuPrincipal) :-
-        GestorService:inicializar_arquivo_json,
-        GestorService:criar_gestor(NovoGestor),
-        writeln('------------Gestor------------'),
+criar_gestor(MenuPrincipal) :-
+        GestorService: criar_gestor(NovoGestor),
         writeln('Nova senha de acesso: '),
-        senha_validaG(SenhaG),
-        GestorService:adicionar_gestor(NovoGestor, SenhaG),
-        writeln('\n Gestor criado com sucesso!'),
+        senha_valida(SenhaGestor),
+        GestorService:adicionar_gestor(NovoGestor, SenhaGestor),
         sleep(2),
-        menu_gestor_g(MenuPrincipal).
+        menu_gestor(MenuPrincipal).
 
 
-    % MAQUINA 
+    /* % MAQUINA 
 
     :- use_module(library(system)).
 
@@ -176,7 +168,9 @@ escolher_opcao_gestor(Opcao, MenuPrincipal) :-
     ;
             writeln('Opcao invalida. Por favor, escolha novamente.'),
             menu_financeiro_g(MenuPrincipal)
-    ).
+    ). */
+
+    
 
 
 
