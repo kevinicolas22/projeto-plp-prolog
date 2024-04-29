@@ -62,7 +62,8 @@ menu_gestor_g(MenuPrincipal) :-
 
 escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
     (   Opcao = "1" ->
-            criar_gestor(MenuPrincipal)
+            criar_gestor,
+            menu_gestor(MenuPrincipal)
     ;   Opcao = "2" ->
             atualizar_gestor_opcao(MenuPrincipal)
     ;   Opcao = "3" ->
