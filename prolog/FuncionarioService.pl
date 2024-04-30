@@ -6,7 +6,8 @@
     ler_funcionario/1,
     remover_funcionario/1,
     listar_todos_funcionarios/1,
-    atualizarFuncionarioPorCPF/3
+    atualizarFuncionarioPorCPF/3,
+    criar_login/1
 ]).
 
 :- use_module(util).
@@ -33,8 +34,25 @@ adicionar_funcionario(NovoFuncionario, MenuPrincipal) :-
         open(Arquivo, write, StreamWrite),
         json_write(StreamWrite, NovoFuncionario),
         close(StreamWrite),
+        criar_login(NovoFuncionario),
         menu_funcionario_g(MenuPrincipal)
     ).
+
+criar_login(Funcionario):-
+    writeln('Digite a senha do login: '),
+    read_line_to_string(user_input, Senha),
+    CpfF = Funcionario.cpf,
+    NovoLogin = login{
+        cpf: CpfF,
+        senha: Senha,
+        tipoUsuario: 3
+    },
+    atom_concat('BD/login/', CpfF, Temp1),
+    atom_concat(Temp1, '.json', Arquivo1),
+    open(Arquivo1, write, StreamWrite),
+    json_write(StreamWrite, NovoLogin),
+    close(StreamWrite).
+
 
 criar_funcionario(MenuPrincipal) :-
     writeln("Digite o CPF (11 Digitos): "),
@@ -96,6 +114,9 @@ remover_funcionario(CPF) :-
     ->  string_to_atom(CPF, CPFa),
         atom_concat('BD/funcionario/', CPFa, Temp),
         atom_concat(Temp, '.json', Arquivo),
+        atom_concat('BD/login/', CPFa, Temp1),
+        atom_concat(Temp1, '.json', Arquivo1),
+        delete_file(Arquivo1),
         delete_file(Arquivo),
         writeln("Funcionario removido com sucesso!")
     ;   writeln("Funcionario nao existe!")
