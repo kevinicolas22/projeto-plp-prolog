@@ -1,7 +1,9 @@
 :- module(GestorService, [
     inicializar_arquivo_json/0,
     adicionar_gestor/2,
-    criar_gestor/1
+    criar_gestor/1,
+    remover_gestor/1,
+    ler_gestor/1
 ]).
 
 :- use_module(library(http/json)).
@@ -64,16 +66,17 @@ ler_gestor(CPFG) :-
         close(StreamRead),
         writeln("Informacoes do Gestor:"),
         format("Nome: ~s~n", [Gestor.nomeG]),
-        format("CPFG: ~s~n", [Gestor.CPFGG]),
+        format("CPFG: ~s~n", [Gestor.CPFG]),
         format("Endereco: ~s~n", [Gestor.enderecoG]),
         format("Telefone: ~s~n", [Gestor.telefoneG]),
         format("Data de Nascimento: ~s~n", [Gestor.dataNascimentoG])
-    ;   writeln("Gestor nao existe!")
+    ;   writeln("Gestor nao existe para o CPF fornecido.")
     ).
 
 
 remover_gestor(CPFG) :-
     (   gestor_existe(CPFG)
+      %string_to_atom(CPFG,CPfG)
     ->  atom_concat('BD/gestor/', CPFG, Temp),
         atom_concat(Temp, '.json', Arquivo),
         delete_file(Arquivo),

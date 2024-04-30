@@ -85,6 +85,36 @@ criar_gestor(MenuPrincipal) :-
         sleep(2),
         menu_gestor(MenuPrincipal).
 
+ler_gestor_opcao(MenuPrincipal) :-
+    writeln('>> Digite o CPF do gestor que deseja buscar:'),
+    read_line_to_string(user_input, CPFG),
+    writeln('Procurando...\n'),
+    sleep(2),
+    ler_gestor(CPFG),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_gestor_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+            ler_gestor_opcao(MenuPrincipal)
+    ).
+
+
+remover_gestor_opcao(MenuPrincipal) :-
+        writeln('>> Digite o CPF do gestor que deseja remover:'),
+        read_line_to_string(user_input, CPFG),
+        writeln('Removendo...\n'),
+        sleep(2),
+        remover_gestor(CPFG),
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_gestor_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                remover_gestor_opcao(MenuPrincipal)
+        ).
+
+
     /* % MAQUINA 
 
     :- use_module(library(system)).
