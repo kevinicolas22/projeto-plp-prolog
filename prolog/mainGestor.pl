@@ -1,15 +1,16 @@
 :- module(mainGestor, [menu_gestor/1]).
 
+:- use_module(util).
 :- use_module(manager).
 :- use_module(manager_service).
 :- use_module(maquina).
 :- use_module(text_util).
 :- use_module(maquina_service).
 :- use_module(system).
-:- use_module(funcionario_service).
+:- use_module(FuncionarioService).
 :- use_module(funcionario).
 :- use_module(library(ansi_term)).
-:- use_module('FuncionarioService', [adicionar_funcionario/2, criar_funcionario/1, ler_funcionario/1, remover_funcionario/1]). 
+:- use_module('FuncionarioService', [adicionar_funcionario/2, criar_funcionario/1, ler_funcionario/1, remover_funcionario/1, listar_todos_funcionarios/1]). 
 
 
 menu_gestor(MenuPrincipal) :-
@@ -94,8 +95,8 @@ criar_funcionario(MenuPrincipal) :-
     menu_gestor(MenuPrincipal).
 
 atualizar_funcionario_opcao(MenuPrincipal) :-
-    writeln('>> Digite o ID do funcionário que deseja atualizar:'),
-    read(Id),
+    writeln('>> Digite o CPF do funcionário que deseja atualizar:'),
+    read_line_to_string(user_input, CPF),
     writeln('----------------------------------------------'),
     writeln('|     Escolha o dado do funcionario a ser    |'),
     writeln('|              atualizado:                   |'),
@@ -107,31 +108,11 @@ atualizar_funcionario_opcao(MenuPrincipal) :-
     writeln('|   [5] Data de Ingresso                     |'),
     writeln('|   [6] Salário                              |'),
     writeln('----------------------------------------------'),
-    read(Escolha),
-    (   Escolha = "1" ->
-            writeln('>> Digite o novo nome:'),
-            read(NovoNome),
-            atualizarFuncionarioPorId(Id, Funcionario{funcId: Id, nome: NovoNome, cpf: "", endereco: "", telefone: "", data_ingresso: "", salario: 0.0})
-    ;   Escolha = "2" ->
-            writeln('>> Digite o novo CPF:'),
-            read(NovoCPF),
-            atualizarFuncionarioPorId(Id, Funcionario{funcId: Id, nome: "", cpf: NovoCPF, endereco: "", telefone: "", data_ingresso: "", salario: 0.0})
-    ;   Escolha = "3" ->
-            writeln('>> Digite o novo endereço:'),
-            read(NovoEndereco),
-            atualizarFuncionarioPorId(Id, Funcionario{funcId: Id, nome: "", cpf: "", endereco: NovoEndereco, telefone: "", data_ingresso: "", salario: 0.0})
-    ;   Escolha = "4" ->
-            writeln('>> Digite o novo telefone:'),
-            read(NovoTelefone),
-            atualizarFuncionarioPorId(Id, Funcionario{funcId: Id, nome: "", cpf: "", endereco: "", telefone: NovoTelefone, data_ingresso: "", salario: 0.0})
-    ;   Escolha = "5" ->
-            writeln('>> Digite a nova data de ingresso:'),
-            read(NovaData),
-            atualizarFuncionarioPorId(Id, Funcionario{funcId: Id, nome: "", cpf: "", endereco: "", telefone: "", data_ingresso: NovaData, salario: 0.0})
-    ;   Escolha = "6" ->
-            writeln('>> Digite o novo salário:'),
-            read(NovoSalario),
-            atualizarFuncionarioPorId(Id, Funcionario{funcId: Id, nome: "", cpf: "", endereco: "", telefone: "", data_ingresso: "", salario: NovoSalario})
+    read_line_to_string(user_input, Escolha),
+    atom_number(Escolha, Numero),
+    (   Numero >= 1, Numero =< 6 ->
+        read_line_to_string(user_input, NovoValor),
+        atualizarFuncionarioPorCPF(CPF, Escolha, NovoValor)
     ;   writeln('Opção inválida.')
     ),
     writeln('\nAtualizando...'),
@@ -142,9 +123,9 @@ atualizar_funcionario_opcao(MenuPrincipal) :-
 
 ler_todos_funcionarios(MenuPrincipal) :-
     writeln('------------FUNCIONARIOS------------'),
-    listar_todos_funcionarios,
+    listar_todos_funcionarios('BD/funcionario'),
     writeln('\n\n [0] Voltar'),
-    read(Op),
+    read_line_to_string(user_input, Op),
     (   Op = "0" ->
             menu_funcionario_g(MenuPrincipal)
     ;   writeln('Opcao invalida. Por favor, escolha novamente.'),

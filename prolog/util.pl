@@ -1,4 +1,4 @@
-:- module(util, [delimitar_cpf/2, limpar_terminal/0, ler_json/2]).
+:- module(util, [delimitar_cpf/2, limpar_terminal/0, ler_json/2, deletar_arquivo/1, string_to_atom/2]).
 
 :- use_module(library(http/json)).
 
@@ -48,3 +48,10 @@ limpar_terminal :-
     fail. % Faz o loop falhar para parar
 limpar_terminal. % Finaliza o predicado
 
+deletar_arquivo(Arquivo) :-
+    atom_concat('rm ', Arquivo, Command),
+    shell(Command).
+
+string_to_atom(String, Atom) :-
+    string_chars(String, Chars),
+    atom_chars(Atom, Chars).
