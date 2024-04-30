@@ -5,7 +5,8 @@
     menu_gestor_funcionario/1,
     ler_funcionario/1,
     remover_funcionario/1,
-    listar_todos_funcionarios/1
+    listar_todos_funcionarios/1,
+    atualizarFuncionarioPorCPF/3
 ]).
 
 :- use_module(util).
@@ -139,7 +140,9 @@ atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
             (   NumeroCampo = 1 ->
                         FuncionarioAtualizado = Funcionario.put(nome, NovoValor)
                 ;   NumeroCampo = 2 ->
-                        FuncionarioAtualizado = Funcionario.put(cpf, NovoValor)
+                        delete_file(Arquivo),
+                        FuncionarioAtualizado = Funcionario.put(cpf, NovoValor),
+                        adicionar_funcionario(FuncionarioAtualizado, MenuPrincipal)
                 ;   NumeroCampo = 3 ->
                         FuncionarioAtualizado = Funcionario.put(endereco, NovoValor)
                 ;   NumeroCampo = 4 ->
@@ -150,9 +153,16 @@ atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
                         FuncionarioAtualizado = Funcionario.put(salario, NovoValor)
             ),
 
+            writeln('\nAtualizando...'),
+            sleep(2),
+    
+
             open(Arquivo, write, StreamWrite),
             json_write(StreamWrite, FuncionarioAtualizado),
-            close(StreamWrite)
+            close(StreamWrite),
+
+            writeln('\nFuncionário Atualizado!'),
+            sleep(2)
 
         )
     ;   writeln("Funcionario nao existe!")
