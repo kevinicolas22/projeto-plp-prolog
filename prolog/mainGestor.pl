@@ -65,9 +65,9 @@ escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
     ;   Opcao = "2" ->
             atualizar_gestor_opcao(MenuPrincipal)
     ;   Opcao = "3" ->
-            ler_todos_gestor(MenuPrincipal)
+            ler_todos_gestores(MenuPrincipal)
     ;   Opcao = "4" ->
-            ler_gestor_opcao(MenuPrincipal)
+            consultar_gestor_opcao(MenuPrincipal)
     ;   Opcao = "5" ->
             remover_gestor_opcao(MenuPrincipal)
     ;   Opcao = "6" ->
@@ -85,20 +85,63 @@ criar_gestor(MenuPrincipal) :-
         sleep(2),
         menu_gestor(MenuPrincipal).
 
-ler_gestor_opcao(MenuPrincipal) :-
-    writeln('>> Digite o CPF do gestor que deseja buscar:'),
+atualizar_gestor_opcao(MenuPrincipal) :-
+    writeln('>> Digite o CPF do gestor que deseja atualizar:'),
     read_line_to_string(user_input, CPFG),
-    writeln('Procurando...\n'),
-    sleep(2),
-    ler_gestor(CPFG),
+    writeln('----------------------------------------------'),
+    writeln('|     Escolha o dado do gestor a ser         |'),
+    writeln('|              atualizado:                   |'),
+    writeln('|                                            |'),
+    writeln('|   [1] Nome                                 |'),
+    writeln('|   [2] CPF                                  |'),
+    writeln('|   [3] Endereço                             |'),
+    writeln('|   [4] Telefone                             |'),
+    writeln('|   [5] Data de Nascimento                   |'),
+    writeln('|                                            |'),
+    writeln('|   [0] Voltar                               |'),
+    writeln('----------------------------------------------'),
+    writeln('Escolha: '),
+    read_line_to_string(user_input, Escolha),
+    atom_number(Escolha, Numero),
+    (   Numero >= 0, Numero =< 6 ->
+        (   Numero = 0 ->
+                menu_gestor_g(MenuPrincipal)
+            ;   
+                writeln('Insira o novo valor: '),
+                read_line_to_string(user_input, NovoValor),
+                atualizar_gestor_porCpf(CPFG, Numero, NovoValor),
+                menu_gestor(MenuPrincipal)
+        )
+
+    ;   writeln('Opção inválida.'),
+        atualizar_gestor_opcao(MenuPrincipal)
+    ).
+
+
+ler_todos_gestores(MenuPrincipal) :-
+    writeln('------------GESTORES------------'),
+    listar_gestores('BD/gestor'),
     writeln('\n\n [0] Voltar'),
     read_line_to_string(user_input, Op),
     (   Op = "0" ->
             menu_gestor_g(MenuPrincipal)
     ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
-            ler_gestor_opcao(MenuPrincipal)
+        ler_todos_gestores(MenuPrincipal)
     ).
 
+consultar_gestor_opcao(MenuPrincipal) :-
+    writeln('>> Digite o CPF do gestor que deseja buscar:'),
+    read_line_to_string(user_input, CPFG),
+    writeln('Procurando...\n'),
+    sleep(2),
+    consultar_gestor(CPFG), % Alteração feita aqui
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_gestor_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        consultar_gestor_opcao(MenuPrincipal)
+    ).
 
 remover_gestor_opcao(MenuPrincipal) :-
         writeln('>> Digite o CPF do gestor que deseja remover:'),
@@ -168,6 +211,7 @@ remover_gestor_opcao(MenuPrincipal) :-
     ).
 
 
+    */
     % FINANCEIRO 
 
     :- use_module(library(system)).
@@ -177,7 +221,7 @@ remover_gestor_opcao(MenuPrincipal) :-
         writeln('            Financeiro Codefit                '),
         writeln('----------------------------------------------'),
         writeln('|                                            |'),
-        writeln('|   [1] Folha de Pagamento do Gestor    |'),
+        writeln('|   [1] Folha de Pagamento do Funcioanrio    |'),
         writeln('|   [2] Renda e Gastos Mensais               |'),
         writeln('|   [3] Voltar para o menu                   |'),
         writeln('|                                            |'),
@@ -196,7 +240,25 @@ remover_gestor_opcao(MenuPrincipal) :-
     ;
             writeln('Opcao invalida. Por favor, escolha novamente.'),
             menu_financeiro_g(MenuPrincipal)
-    ). */
+    ). 
+
+    folha_pagamento_func(MenuPrincipal) :-
+        writeln('>> Digite o CPF do funcionario que deseja consultar:'),
+        read_line_to_string(user_input, CPF),
+        writeln('Consultando...\n'),
+        sleep(2),
+        imprimir_folha_pagamento(CPF),
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_financeiro_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                folha_pagamento_func(MenuPrincipal)
+        ).
+
+
+
+
 
     
 
