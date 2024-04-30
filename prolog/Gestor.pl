@@ -1,4 +1,4 @@
-:- module(Gestor, [gestor/6])
+:- module(gestor, [gestor/6]).
 
 :- dynamic gestor/6.
 
@@ -9,5 +9,5 @@
 :- op(600, xfx, enderecoG).
 :- op(600, xfx, telefoneG).
 
-gestor(GestorId, NomeG, CPFG, DataNascimentoG,EnderecoG, TelefoneG) :-
-    assertz(gestor(GestorId, NomeG, CPFG, DataNascimentoG,EnderecoG, TelefoneG)).
+gestor(GestorId, NomeG, CPFG, DataNascimentoG, EnderecoG, TelefoneG) :-
+    assertz(gestor(GestorId, NomeG, CPFG, DataNascimentoG, EnderecoG, TelefoneG)).

@@ -1,4 +1,3 @@
-
 :- module(mainGestor, [menu_gestor/1]).
 
 :- use_module(maquina).
@@ -7,7 +6,7 @@
 :- use_module(system).
 :- use_module(gestor).
 :- use_module(library(ansi_term)).
-:- use_module(gestor_service, [inicializar_arquivo_json/0, adicionar_gestor/2, criar_gestor/1]).
+:- use_module('GestorService').
 
 menu_gestor(MenuPrincipal) :-
     writeln('----------------------------------------------'),
@@ -37,7 +36,7 @@ escolher_opcao_gestor(Opcao, MenuPrincipal) :-
     ; Opcao = "5" ->
         MenuPrincipal
     ;
-        writeln('Opção invalida. Por favor, escolha novamente.'),
+        writeln('Opção inválida. Por favor, escolha novamente.'),
         menu_gestor(MenuPrincipal)
     ).
 
@@ -62,8 +61,7 @@ menu_gestor_g(MenuPrincipal) :-
 
 escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
     (   Opcao = "1" ->
-            criar_gestor,
-            menu_gestor(MenuPrincipal)
+            criar_gestor(MenuPrincipal)
     ;   Opcao = "2" ->
             atualizar_gestor_opcao(MenuPrincipal)
     ;   Opcao = "3" ->
@@ -80,13 +78,12 @@ escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
     ).
 
 criar_gestor(MenuPrincipal) :-
-        GestorService: criar_gestor(NovoGestor),
+        GestorService : criar_gestor(NovoGestor),
         writeln('Nova senha de acesso: '),
         senha_valida(SenhaGestor),
         GestorService:adicionar_gestor(NovoGestor, SenhaGestor),
         sleep(2),
         menu_gestor(MenuPrincipal).
-
 
     /* % MAQUINA 
 

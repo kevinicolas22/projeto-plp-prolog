@@ -1,30 +1,28 @@
 :- module(GestorService, [
     inicializar_arquivo_json/0,
     adicionar_gestor/2,
-    criar_gestor/1,
-    menu_gestor/1,
-    ler_gestor/1,
-    remover_gestor/1
+    criar_gestor/1
 ]).
 
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 
-:- use_module(mainGestor, [menu_gestor_g/1]).
+inicializar_arquivo_json :-
+    open('gestor.json', write, Stream),
+    json_write(Stream, _{}),
+    close(Stream).
 
-% Função para verificar se um gestor já existe
-gestor_existe(CPF) :-
-    atom_concat('BD/gestor/', CPF, Temp),
+gestor_existe(CPFG) :-
+    atom_concat('BD/gestor/', CPFG, Temp),
     atom_concat(Temp, '.json', Arquivo),
     exists_file(Arquivo).
 
 adicionar_gestor(NovoGestor, MenuPrincipal) :-
-    CPF = NovoGestor.cpf,
-    (   gestor_existe(CPF)
+    CPFG = NovoGestor.cpfG,
+    (   gestor_existe(CPFG)
     ->  writeln("Gestor já existe!"),
         menu_gestor(MenuPrincipal)
-    ;   % Cria o nome do arquivo com base no CPF
-        atom_concat('BD/gestor/', CPF, Temp),
+    ;   atom_concat('BD/gestor/', CPFG, Temp),
         atom_concat(Temp, '.json', Arquivo),
         open(Arquivo, write, StreamWrite),
         json_write(StreamWrite, NovoGestor),
@@ -33,47 +31,40 @@ adicionar_gestor(NovoGestor, MenuPrincipal) :-
     ).
 
 criar_gestor(MenuPrincipal) :-
-    writeln("Digite o CPF (11 Digitos): "),
-    read_line_to_string(user_input, CPF),
-    % Verifica se o gestor já existe
-    (   gestor_existe(CPF)
+    writeln("Digite o CPFG (11 Digitos): "),
+    read_line_to_string(user_input, CPFG),
+    (   gestor_existe(CPFG)
     ->  writeln("Gestor já existe!"),
         menu_gestor(MenuPrincipal)
-    ;   % Continua com o cadastro do gestor
-        writeln("Nome do Gestor:"),
-        read_line_to_string(user_input, Nome),
+    ;   writeln("Nome do Gestor: "),
+        read_line_to_string(user_input, NomeG),
         writeln("Digite o endereco: "),
-        read_line_to_string(user_input, Endereco),
+        read_line_to_string(user_input, EnderecoG),
         writeln("Digite o telefone 11 digitos ex: 08391234567"),
-        read_line_to_string(user_input, Telefone),
+        read_line_to_string(user_input, TelefoneG),
         writeln("Digite a data de nascimento 8 digitos ex: DDMMAAAA"),
-        read_line_to_string(user_input, DataNascimento),
-        NovoGestor = gestor{
-            nomeG: Nome,
-            cpfG: CPF,
-            enderecoG: Endereco,
-            telefoneG: Telefone,
-            dataNascimentoG: DataNascimento
-        },
+        read_line_to_string(user_input, DataNascimentoG),
+        NovoGestor = gestor{ nomeG: NomeG, cpfG: CPFG, enderecoG: EnderecoG, telefoneG: TelefoneG, dataNascimentoG: DataNascimentoG },
         adicionar_gestor(NovoGestor, MenuPrincipal),
         writeln("Gestor cadastrado com sucesso:"),
-        writeln("Nome: " + Nome),
-        writeln("CPF: " + CPF),
-        writeln("Endereco: " + Endereco),
-        writeln("Telefone: " + Telefone),
-        writeln("Data de Nascimento: " + DataNascimento)
+        writeln("Nome: " + NomeG),
+        writeln("CPFG: " + CPFG),
+        writeln("Endereco: " + EnderecoG),
+        writeln("Telefone: " + TelefoneG),
+        writeln("Data de Nascimento: " + DataNascimentoG)
     ).
 
-ler_gestor(CPF) :-
-    (   gestor_existe(CPF)
-    ->  atom_concat('BD/gestor/', CPF, Temp),
+
+/*ler_gestor(CPFG) :-
+    (   gestor_existe(CPFG)
+    ->  atom_concat('BD/gestor/', CPFG, Temp),
         atom_concat(Temp, '.json', Arquivo),
         open(Arquivo, read, StreamRead),
         json_read_dict(StreamRead, Gestor),
         close(StreamRead),
         writeln("Informacoes do Gestor:"),
         format("Nome: ~s~n", [Gestor.nomeG]),
-        format("CPF: ~s~n", [Gestor.cpfG]),
+        format("CPFG: ~s~n", [Gestor.CPFGG]),
         format("Endereco: ~s~n", [Gestor.enderecoG]),
         format("Telefone: ~s~n", [Gestor.telefoneG]),
         format("Data de Nascimento: ~s~n", [Gestor.dataNascimentoG])
@@ -81,16 +72,16 @@ ler_gestor(CPF) :-
     ).
 
 
-remover_gestor(CPF) :-
-    (   gestor_existe(CPF)
-    ->  atom_concat('BD/gestor/', CPF, Temp),
+remover_gestor(CPFG) :-
+    (   gestor_existe(CPFG)
+    ->  atom_concat('BD/gestor/', CPFG, Temp),
         atom_concat(Temp, '.json', Arquivo),
         delete_file(Arquivo),
         writeln("Gestor removido com sucesso!")
     ;   writeln("Gestor nao existe!")
     ).
 
-/*
+
 :- module(GestorService, [
     inicializar_arquivo_json/0,
     adicionar_gestor/5,
@@ -125,8 +116,8 @@ id_unicoG(Ids, IdNovo) :-
 
 
 
-gestor_existe(CPF) :-
-    atom_concat('BD/gestor/', CPFG, Temp),
+gestor_existe(CPFG) :-
+    atom_concat('BD/gestor/', CPFGG, Temp),
     atom_concat(Temp, '.json', Arquivo),
     exists_file(Arquivo).
 
@@ -155,8 +146,8 @@ criar_gestor :-
     writeln("ID: " + IdGestor),
     writeln("Nome do Gestor:"),
     read_line_to_string(user_input, NomeG),
-    writeln("Digite o CPF (11 Digitos): "),
-    read_line_to_string(user_input, CPFG),
+    writeln("Digite o CPFG (11 Digitos): "),
+    read_line_to_string(user_input, CPFGG),
     writeln("Digite a data de nascimento (8 digitos): "),
     read_line_to_string(user_input, DataNascimentoG),
     writeln("Digite o endereco: "),
@@ -164,7 +155,7 @@ criar_gestor :-
     writeln("Digite o telefone 11 digitos ex: 08391234567"),
     read_line_to_string(user_input, TelefoneG),
     % Cria o termo com todas as informações do gestor
-    NovoGestor = gestor{nome:NomeG, cpf:CPFG, data_nascimento:DataNascimentoG, endereco:EnderecoG, telefone:TelefoneG},
+    NovoGestor = gestor{nome:NomeG, CPFG:CPFGG, data_nascimento:DataNascimentoG, endereco:EnderecoG, telefone:TelefoneG},
     % Adiciona o novo gestor ao arquivo JSON
     adicionar_gestor(NovoGestor).
 */
