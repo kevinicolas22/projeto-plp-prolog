@@ -122,6 +122,7 @@ remover_funcionario(CPF) :-
     ;   writeln("Funcionario nao existe!")
     ).
 
+
 listar_todos_funcionarios(Path) :-
     directory_files(Path, Lista_Arquivos),
     processar_arquivos_json(Lista_Arquivos, Path).
@@ -160,12 +161,16 @@ atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
             (   NumeroCampo = 1 ->
                         FuncionarioAtualizado = Funcionario.put(nome, NovoValor)
                 ;   NumeroCampo = 2 ->
-                        FuncionarioAtualizado = Funcionario.put(endereco, NovoValor)
+                        delete_file(Arquivo),
+                        FuncionarioAtualizado = Funcionario.put(cpf, NovoValor),
+                        adicionar_funcionario(FuncionarioAtualizado, MenuPrincipal)
                 ;   NumeroCampo = 3 ->
-                        FuncionarioAtualizado = Funcionario.put(telefone, NovoValor)
+                        FuncionarioAtualizado = Funcionario.put(endereco, NovoValor)
                 ;   NumeroCampo = 4 ->
-                        FuncionarioAtualizado = Funcionario.put(data_ingresso, NovoValor)
+                        FuncionarioAtualizado = Funcionario.put(telefone, NovoValor)
                 ;   NumeroCampo = 5 ->
+                        FuncionarioAtualizado = Funcionario.put(data_ingresso, NovoValor)
+                ;   NumeroCampo = 6 ->
                         FuncionarioAtualizado = Funcionario.put(salario, NovoValor)
             ),
 
@@ -177,7 +182,7 @@ atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
             json_write(StreamWrite, FuncionarioAtualizado),
             close(StreamWrite),
 
-            writeln('\nFuncionario Atualizado!'),
+            writeln('\nFuncionário Atualizado!'),
             sleep(2)
 
         )

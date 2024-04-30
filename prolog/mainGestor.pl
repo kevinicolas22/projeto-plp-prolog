@@ -95,24 +95,25 @@ criar_funcionario(MenuPrincipal) :-
     menu_gestor(MenuPrincipal).
 
 atualizar_funcionario_opcao(MenuPrincipal) :-
-    writeln('>> Digite o CPF do funcionario que deseja atualizar:'),
+    writeln('>> Digite o CPF do funcionário que deseja atualizar:'),
     read_line_to_string(user_input, CPF),
     writeln('----------------------------------------------'),
     writeln('|     Escolha o dado do funcionario a ser    |'),
     writeln('|              atualizado:                   |'),
     writeln('|                                            |'),
     writeln('|   [1] Nome                                 |'),
-    writeln('|   [2] Endereco                             |'),
-    writeln('|   [3] Telefone                             |'),
-    writeln('|   [4] Data de Ingresso                     |'),
-    writeln('|   [5] Salario                              |'),
+    writeln('|   [2] CPF                                  |'),
+    writeln('|   [3] Endereço                             |'),
+    writeln('|   [4] Telefone                             |'),
+    writeln('|   [5] Data de Ingresso                     |'),
+    writeln('|   [6] Salário                              |'),
     writeln('|                                            |'),
     writeln('|   [0] Voltar                               |'),
     writeln('----------------------------------------------'),
     writeln('Escolha: '),
     read_line_to_string(user_input, Escolha),
     atom_number(Escolha, Numero),
-    (   Numero >= 0, Numero =< 5 ->
+    (   Numero >= 0, Numero =< 6 ->
         (   Numero = 0 ->
                 menu_funcionario_g(MenuPrincipal)
             ;   
@@ -122,7 +123,7 @@ atualizar_funcionario_opcao(MenuPrincipal) :-
                 menu_gestor(MenuPrincipal)
         )
 
-    ;   writeln('Opcao invalida.'),
+    ;   writeln('Opção inválida.'),
         atualizar_funcionario_opcao(MenuPrincipal)
     ).
 
@@ -142,7 +143,7 @@ ler_funcionario_opcao(MenuPrincipal) :-
     read_line_to_string(user_input, CPF),
     writeln('Procurando...\n'),
     sleep(2),
-    ler_funcionario(CPF), 
+    ler_funcionario(CPF), % Alteração feita aqui
     writeln('\n\n [0] Voltar'),
     read_line_to_string(user_input, Op),
     (   Op = "0" ->
