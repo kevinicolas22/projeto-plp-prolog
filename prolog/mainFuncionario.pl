@@ -18,6 +18,15 @@
 :- use_module(library(random)).
 :- use_module(library(apply)).
 
+:- use_module('AvaliacaoService', [
+    adicionar_avaliacao_fisica/2,
+    criar_avaliacao_fisica/1,
+    ler_avaliacao_fisica_por_cpf/1,
+    listar_todas_avaliacoes_fisicas/1,
+    remover_avaliacao_fisica_por_cpf/1,
+    atualizarAvaliacaoPorCPF/3
+]).
+
 menu_funcionario(MenuPrincipal) :-
     writeln('---------------------------------------------'),
     writeln('            Funcionario Codefit             '),
@@ -51,9 +60,141 @@ escolher_opcao(Opcao, MenuPrincipal) :-
     ;   Opcao = "6" ->
             menu_avaliacao_fisica(MenuPrincipal)
     ;   Opcao = "7" ->
-            writeln('Saindo...'),
-            MenuPrincipal
-    ;   
-            writeln('Opção invalida. Por favor, escolha novamente.'),
-            menu_funcionario(MenuPrincipal)
+            writeln('Encerrando o programa...'),
+            halt
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+            menu_gestor(MenuPrincipal),
+            fail 
     ).
+
+
+% Avaliacao Fisica
+
+:- use_module(library(system)).
+
+menu_avaliacao_fisica(MenuPrincipal) :-
+    writeln('----------------------------------------------'),
+    writeln('|         Opcoes sobre Avaliacao Fisica:     |'),
+    writeln('|                                            |'),
+    writeln('|   [a] Realizar Avaliacao Fisica            |'),
+    writeln('|   [b] Buscar Avaliacao por ID              |'),
+    writeln('|   [c] Listar Todas as Avaliacoes Fisicas   |'),
+    writeln('|   [d] Atualizar Avaliacao Fisica           |'),
+    writeln('|   [e] Verificar IMC                        |'),
+    writeln('|   [f] Remover Avaliacao Fisica             |'),
+    writeln('|   [g] Voltar ao Menu Principal             |'),
+    writeln('|                                            |'),
+    writeln('|   > Digite a opcao:                        |'),
+    writeln('----------------------------------------------'),
+    read_line_to_string(user_input, Opcao),
+    escolher_opcao_avaliacao_fisica(Opcao, MenuPrincipal).
+
+escolher_opcao_avaliacao_fisica(Opcao, MenuPrincipal) :-
+    (   Opcao = "a" ->
+            criar_avaliacao_fisica(MenuPrincipal)
+    ;   Opcao = "b" ->
+            buscar_avaliacao_por_cpf(MenuPrincipal)
+    ;   Opcao = "c" ->
+            listar_todas_avaliacoes_fisicas_opcao(MenuPrincipal)
+    ;   Opcao = "d" ->
+            atualizar_avaliacao_fisica_opcao(MenuPrincipal)
+    ;   Opcao = "e" ->
+            verificar_imc(MenuPrincipal)
+    ;   Opcao = "f" ->
+            remover_avaliacao_fisica_opcao(MenuPrincipal)
+    ;   Opcao = "g" ->
+            menu_funcionario(MenuPrincipal)
+    ;
+            writeln('Opcao invalida. Por favor, escolha novamente.'),
+            menu_avaliacao_fisica(MenuPrincipal)
+    ).
+
+criar_avaliacao_fisica(MenuPrincipal) :-
+    criar_avaliacao_fisica(NovaAvaliacaoFisica) :-
+    writeln('Realizando avaliacao fisica...'),
+    AvaliacaoService:adicionar_avaliacao_fisica(NovaAvaliacaoFisica, MenuPrincipal), 
+    writeln('Avaliacao fisica concluida.'),
+    sleep(2),
+    menu_avaliacao_fisica(MenuPrincipal).
+
+buscar_avaliacao_por_cpf(MenuPrincipal) :-
+    writeln('Digite o CPF do aluno para buscar a avaliacao fisica:'),
+    read_line_to_string(user_input, CPF),
+    writeln('Procurando...\n'),
+    sleep(2),
+    ler_avaliacao_fisica_por_cpf(CPF),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+     (   Op = "0" ->
+            menu_avaliacao_fisica(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        buscar_avaliacao_por_cpf(MenuPrincipal)
+    ).
+
+remover_avaliacao_fisica_opcao(MenuPrincipal) :-
+    writeln('Digite o CPF do aluno para remover a avaliacao fisica:'),
+    read_line_to_string(user_input, CPF),
+    writeln('Removendo...'),
+    sleep(2),
+    remover_avaliacao_fisica_por_cpf(CPF),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+     (   Op = "0" ->
+            menu_avaliacao_fisica(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        buscar_avaliacao_por_cpf(MenuPrincipal)
+    ).
+      
+listar_todas_avaliacoes_fisicas_opcao(MenuPrincipal) :-
+    writeln('------------AVALIACOES FISICAS------------'),
+    listar_todas_avaliacoes_fisicas('BD/avaliacao_fisica'),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_avaliacao_fisica(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        listar_todas_avaliacoes_fisicas_opcao(MenuPrincipal)
+    ).
+
+atualizar_avaliacao_fisica_opcao(MenuPrincipal) :-
+    writeln('Digite o CPF do aluno para atualizar a avaliacao fisica:'),
+    read_line_to_string(user_input, CPF),
+    writeln('----------------------------------------------'),
+    writeln('|     Escolha o dado da avaliacao fisica a    |'),
+    writeln('|              ser atualizado:                |'),
+    writeln('|                                            |'),
+    writeln('|   [1] Data da Avaliacao                    |'),
+    writeln('|   [2] Peso                                 |'),
+    writeln('|   [3] Altura                               |'),
+    writeln('|   [4] Idade                                |'),
+    writeln('|   [5] Objetivo                             |'),
+    writeln('|                                            |'),
+    writeln('|   [0] Voltar                               |'),
+    writeln('----------------------------------------------'),
+    writeln('Escolha: '),
+    read_line_to_string(user_input, Escolha),
+    atom_number(Escolha, Numero),
+    (   Numero >= 0, Numero =< 5 ->
+        (   Numero = 0 ->
+                menu_avaliacao_fisica(MenuPrincipal)
+            ;   
+                writeln('Insira o novo valor: '),
+                read_line_to_string(user_input, NovoValor),
+                atualizarAvaliacaoPorCPF(CPF, Numero, NovoValor),
+                menu_avaliacao_fisica(MenuPrincipal)
+        )
+
+    ;   writeln('Opcao invalida.'),
+        atualizar_avaliacao_fisica_opcao(MenuPrincipal)
+    ).
+
+verificar_imc(MenuPrincipal) :-
+    writeln('Verificar IMC. Digite o CPF do aluno para verificar o IMC:'),
+    read_line_to_string(user_input, CPF),
+    % Implemente a lógica para verificar o IMC
+    writeln('Calculando IMC...'),
+    % Código para calcular o IMC
+    sleep(2),
+    writeln('IMC calculado com sucesso.'),
+    menu_avaliacao_fisica(MenuPrincipal).
+

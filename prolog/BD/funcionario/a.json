@@ -2,7 +2,7 @@
   "cpf":"a",
   "data_ingresso":"a",
   "endereco":"a",
-  "nome":"a",
-  "salario":"a",
+  "nome":"abc",
+  "salario":"500",
   "telefone":"a"
 }

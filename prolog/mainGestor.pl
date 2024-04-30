@@ -10,7 +10,7 @@
 :- use_module(FuncionarioService).
 :- use_module(funcionario).
 :- use_module(library(ansi_term)).
-:- use_module('FuncionarioService', [adicionar_funcionario/2, criar_funcionario/1, ler_funcionario/1, remover_funcionario/1, listar_todos_funcionarios/1]). 
+:- use_module('FuncionarioService', [adicionar_funcionario/2, criar_funcionario/1, ler_funcionario/1, remover_funcionario/1, listar_todos_funcionarios/1, atualizarFuncionarioPorCPF/3]). 
 
 
 menu_gestor(MenuPrincipal) :-
@@ -95,31 +95,36 @@ criar_funcionario(MenuPrincipal) :-
     menu_gestor(MenuPrincipal).
 
 atualizar_funcionario_opcao(MenuPrincipal) :-
-    writeln('>> Digite o CPF do funcionário que deseja atualizar:'),
+    writeln('>> Digite o CPF do funcionario que deseja atualizar:'),
     read_line_to_string(user_input, CPF),
     writeln('----------------------------------------------'),
     writeln('|     Escolha o dado do funcionario a ser    |'),
     writeln('|              atualizado:                   |'),
     writeln('|                                            |'),
     writeln('|   [1] Nome                                 |'),
-    writeln('|   [2] CPF                                  |'),
-    writeln('|   [3] Endereço                             |'),
-    writeln('|   [4] Telefone                             |'),
-    writeln('|   [5] Data de Ingresso                     |'),
-    writeln('|   [6] Salário                              |'),
+    writeln('|   [2] Endereco                             |'),
+    writeln('|   [3] Telefone                             |'),
+    writeln('|   [4] Data de Ingresso                     |'),
+    writeln('|   [5] Salario                              |'),
+    writeln('|                                            |'),
+    writeln('|   [0] Voltar                               |'),
     writeln('----------------------------------------------'),
+    writeln('Escolha: '),
     read_line_to_string(user_input, Escolha),
     atom_number(Escolha, Numero),
-    (   Numero >= 1, Numero =< 6 ->
-        read_line_to_string(user_input, NovoValor),
-        atualizarFuncionarioPorCPF(CPF, Escolha, NovoValor)
-    ;   writeln('Opção inválida.')
-    ),
-    writeln('\nAtualizando...'),
-    sleep(2),
-    writeln('\nFuncionário Atualizado!'),
-    sleep(2),
-    menu_funcionario_g(MenuPrincipal).
+    (   Numero >= 0, Numero =< 5 ->
+        (   Numero = 0 ->
+                menu_funcionario_g(MenuPrincipal)
+            ;   
+                writeln('Insira o novo valor: '),
+                read_line_to_string(user_input, NovoValor),
+                atualizarFuncionarioPorCPF(CPF, Numero, NovoValor),
+                menu_gestor(MenuPrincipal)
+        )
+
+    ;   writeln('Opcao invalida.'),
+        atualizar_funcionario_opcao(MenuPrincipal)
+    ).
 
 ler_todos_funcionarios(MenuPrincipal) :-
     writeln('------------FUNCIONARIOS------------'),
@@ -137,7 +142,7 @@ ler_funcionario_opcao(MenuPrincipal) :-
     read_line_to_string(user_input, CPF),
     writeln('Procurando...\n'),
     sleep(2),
-    ler_funcionario(CPF), % Alteração feita aqui
+    ler_funcionario(CPF), 
     writeln('\n\n [0] Voltar'),
     read_line_to_string(user_input, Op),
     (   Op = "0" ->
@@ -159,6 +164,3 @@ remover_funcionario_opcao(MenuPrincipal) :-
     ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
         remover_funcionario_opcao(MenuPrincipal)
     ).
-
-
-
