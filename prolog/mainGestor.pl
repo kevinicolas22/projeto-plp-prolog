@@ -1,4 +1,4 @@
-:- module(mainGestor, [menu_gestor/1]).
+:- module(mainGestor, [menu_gestor/1, menu_maquina_g/1]).
 
 :- use_module(maquina).
 :- use_module(text_util).
@@ -7,6 +7,7 @@
 :- use_module(gestor).
 :- use_module(library(ansi_term)).
 :- use_module('GestorService').
+:- use_module('MaquinaService').
 
 menu_gestor(MenuPrincipal) :-
     writeln('----------------------------------------------'),
@@ -158,11 +159,11 @@ remover_gestor_opcao(MenuPrincipal) :-
         ).
 
 
-    /* % MAQUINA 
+     % MAQUINA 
 
     :- use_module(library(system)).
 
-    menu_maquina_g(MenuPrincipal) :-
+menu_maquina_g(MenuPrincipal) :-
         writeln('-------------------------------------------------------'),
         writeln('                   Maquina Codefit                     '),
         writeln('-------------------------------------------------------'),
@@ -171,47 +172,184 @@ remover_gestor_opcao(MenuPrincipal) :-
         writeln('|   [2] Adicionar maquina com necessidade de reparo   |'),
         writeln('|   [3] Listar equipamentos cadastrados               |'),
         writeln('|   [4] Listar maquinas com necessidades de reparo    |'),
-        writeln('|   [5] Verificar datas de manutenção dos equipamentos|'), 
+        writeln('|   [5] Verificar datas de manutencao de equipamentos |'), 
         writeln('|   [6] Verificar quantidade de maquinas cadastradas  |'),
-        writeln('|   [7] Remover maquina cadastrada                    |'),
-        writeln('|   [8] Atualizar maquina                             |'),
-        writeln('|   [9] Voltar para o menu                            |'),
+        writeln('|   [7] Consultar maquina especifica                  |'),
+        writeln('|   [8] Remover maquina cadastrada                    |'),
+        writeln('|   [9] Remover maquina em manutencao                 |'),
+        writeln('|   [10] Atualizar maquina                            |'),
+        writeln('|   [11] Voltar para o menu                           |'),
         writeln('|                                                     |'),
         writeln('|   > Digite a opcao:                                 |'),
         writeln('-------------------------------------------------------'),
         read_line_to_string(user_input, Opcao),
         escolher_opcao_maquina_g(Opcao, MenuPrincipal).
-
-        escolher_opcao_maquina_g(Opcao, MenuPrincipal) :-
+escolher_opcao_maquina_g(Opcao, MenuPrincipal) :-
     (   Opcao = "1" ->
             criar_maquina(MenuPrincipal)
     ;   Opcao = "2" ->
-            add_maquina_reparo(MenuPrincipal)
+            add_no_reparo(MenuPrincipal)
     ;   Opcao = "3" ->
-            listar_todas_maquinas(MenuPrincipal)
+           ler_todas_maquinas(MenuPrincipal)
     ;   Opcao = "4" ->
-            listar_maquinas_reparo(MenuPrincipal)
+            ler_todas_maquinas_reparo(MenuPrincipal)
     ;   Opcao = "5" ->
             verificar_data_manutencao(MenuPrincipal)
     ;   Opcao = "6" ->
-            quantidade_maquina(MenuPrincipal)
-    ;
-        Opcao = "7" ->
-            remover_maquina(MenuPrincipal)
-    ;
-        Opcao = "8" ->
-            atualizar_maquina(MenuPrincipal)
-    ;
-        Opcao = "9" ->
+            quantidade_de_maquinas(MenuPrincipal)
+    ;   Opcao = "7" ->
+            consultar_maquina_opcao(MenuPrincipal)
+    ;   Opcao = "8" ->
+            remover_maquina_opcao(MenuPrincipal) 
+    ;   Opcao = "9" ->
+            remover_maquina_m_opcao(MenuPrincipal)
+    ;   Opcao = "10" ->
+            atualizar_maquina_opcao(MenuPrincipal)
+    ;   Opcao = "11" ->
             menu_gestor(MenuPrincipal)
     ;
-
             writeln('Opcao invalida. Por favor, escolha novamente.'),
             menu_maquina_g(MenuPrincipal)
     ).
 
+criar_maquina(MenuPrincipal) :-
+        MaquinaService : criar_maquina(NovaMaquina),
+        MaquinaService:adicionar_maquina(NovaMaquina),
+        sleep(2),
+        menu_maquina_g(MenuPrincipal).
 
-    */
+atualizar_maquina_opcao(MenuPrincipal) :-
+    writeln('>> Digite o codigo da maquina que deseja atualizar:'),
+    read_line_to_string(user_input, CodigoM),
+    writeln('----------------------------------------------'),
+    writeln('|     Escolha o dado do gestor a ser         |'),
+    writeln('|              atualizado:                   |'),
+    writeln('|                                            |'),
+    writeln('|   [1] Nome                                 |'),
+    writeln('|   [2] Data de menutenção                   |'),
+    writeln('|                                            |'),
+    writeln('|   [0] Voltar                               |'),
+    writeln('----------------------------------------------'),
+    writeln('Escolha: '),
+    read_line_to_string(user_input, Escolha),
+    atom_number(Escolha, Numero),
+    (   Numero >= 0, Numero =< 2 ->
+        (   Numero = 0 ->
+                menu_maquina_g(MenuPrincipal)
+            ;   
+                writeln('Insira o novo valor: '),
+                read_line_to_string(user_input, NovoValor),
+                atualizar_maquina_porCodigo(CodigoM, Numero, NovoValor),
+                menu_maquina_g(MenuPrincipal)
+        )
+
+    ;   writeln('Opção inválida.'),
+        atualizar_maquina_opcao(MenuPrincipal),
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_maquina_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                atualizar_maquina_opcao(MenuPrincipal)
+        )
+    ). 
+remover_maquina_opcao(MenuPrincipal) :-
+        writeln('>> Digite o codigo da maquina que deseja remover:'),
+        read_line_to_string(user_input, Codigo),
+        writeln('Removendo...\n'),
+        sleep(2),
+        remover_maquina(Codigo),
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_maquina_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                remover_maquina_opcao(MenuPrincipal)
+        ).
+
+remover_maquina_m_opcao(MenuPrincipal) :-
+        writeln('>> Digite o codigo da maquina que deseja remover:'),
+        read_line_to_string(user_input, CodigoM),
+        writeln('Removendo...\n'),
+        sleep(2),
+        remover_maquina_manutencao(CodigoM),
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_maquina_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                remover_maquina_m_opcao(MenuPrincipal)
+        ).
+ler_todas_maquinas(MenuPrincipal) :-
+    writeln('-----------MAQUINAS-----------'),
+    listar_maquinas('BD/maquina'),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_maquina_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        ler_todas_maquinas(MenuPrincipal)
+    ).
+
+add_no_reparo(MenuPrincipal) :-
+        adicionar_maquina_reparo(MenuPrincipal),
+        sleep(2),
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_maquina_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                add_no_reparo(MenuPrincipal)
+        ).
+ler_todas_maquinas_reparo(MenuPrincipal) :-
+    writeln('-----------MAQUINAS COM NECESSIDADE DE REPARO-----------'),
+    listar_maquinas_R('BD/reparo'),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_maquina_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        ler_todas_maquinas(MenuPrincipal)
+    ).
+
+%funcao que retorna quantas maquinas existem
+quantidade_de_maquinas(MenuPrincipal) :-
+    contar_maquinas,
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_maquina_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        contar_maquinas(MenuPrincipal)
+    ).
+
+% imprime datas de manutencao
+verificar_data_manutencao(MenuPrincipal) :-
+    writeln('-----------DATAS DE MANUTENCAO-----------'),
+    listar_datas('BD/maquina'),
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_maquina_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        verificar_data_manutencao(MenuPrincipal)
+    ).
+
+consultar_maquina_opcao(MenuPrincipal) :-
+    writeln('>> Digite o codigo da maquina que deseja buscar:'),
+    read_line_to_string(user_input, CodigoMaquina),
+    writeln('Procurando...\n'),
+    sleep(2),
+    consultar_maquina(CodigoMaquina), % Alteração feita aqui
+    writeln('\n\n [0] Voltar'),
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_maquina_g(MenuPrincipal)
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        consultar_maquina_opcao(MenuPrincipal)
+    ).
+
+
     % FINANCEIRO 
 
     :- use_module(library(system)).
@@ -255,17 +393,3 @@ remover_gestor_opcao(MenuPrincipal) :-
         ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
                 folha_pagamento_func(MenuPrincipal)
         ).
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
