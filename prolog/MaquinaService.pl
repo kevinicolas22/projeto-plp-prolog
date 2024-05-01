@@ -208,6 +208,7 @@ ler_e_mostrar_datas(Arquivo) :-
     format("| Data de Manutencao: ~s~n", [Maquina.dataManutencao]),
     writeln('').
 
+% consulta uma maquina especifica
 consultar_maquina(CodigoMaquina) :-
     (   maquina_existe(CodigoMaquina)
     ->  atom_concat('BD/maquina/', CodigoMaquina, Temp),

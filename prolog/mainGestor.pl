@@ -212,12 +212,13 @@ escolher_opcao_maquina_g(Opcao, MenuPrincipal) :-
             menu_maquina_g(MenuPrincipal)
     ).
 
+%criar maquina
 criar_maquina(MenuPrincipal) :-
         MaquinaService : criar_maquina(NovaMaquina),
         MaquinaService:adicionar_maquina(NovaMaquina),
         sleep(2),
         menu_maquina_g(MenuPrincipal).
-
+%atualizar dados maquina
 atualizar_maquina_opcao(MenuPrincipal) :-
     writeln('>> Digite o codigo da maquina que deseja atualizar:'),
     read_line_to_string(user_input, CodigoM),
@@ -253,6 +254,8 @@ atualizar_maquina_opcao(MenuPrincipal) :-
                 atualizar_maquina_opcao(MenuPrincipal)
         )
     ). 
+
+%remover maquina
 remover_maquina_opcao(MenuPrincipal) :-
         writeln('>> Digite o codigo da maquina que deseja remover:'),
         read_line_to_string(user_input, Codigo),
@@ -267,6 +270,7 @@ remover_maquina_opcao(MenuPrincipal) :-
                 remover_maquina_opcao(MenuPrincipal)
         ).
 
+%remover maquina de manutenção
 remover_maquina_m_opcao(MenuPrincipal) :-
         writeln('>> Digite o codigo da maquina que deseja remover:'),
         read_line_to_string(user_input, CodigoM),
@@ -280,6 +284,8 @@ remover_maquina_m_opcao(MenuPrincipal) :-
         ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
                 remover_maquina_m_opcao(MenuPrincipal)
         ).
+
+% lista todas as maquinas
 ler_todas_maquinas(MenuPrincipal) :-
     writeln('-----------MAQUINAS-----------'),
     listar_maquinas('BD/maquina'),
@@ -291,6 +297,7 @@ ler_todas_maquinas(MenuPrincipal) :-
         ler_todas_maquinas(MenuPrincipal)
     ).
 
+% adiciona em reparo
 add_no_reparo(MenuPrincipal) :-
         adicionar_maquina_reparo(MenuPrincipal),
         sleep(2),
@@ -301,6 +308,8 @@ add_no_reparo(MenuPrincipal) :-
         ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
                 add_no_reparo(MenuPrincipal)
         ).
+
+% lista maquinas em reparo
 ler_todas_maquinas_reparo(MenuPrincipal) :-
     writeln('-----------MAQUINAS COM NECESSIDADE DE REPARO-----------'),
     listar_maquinas_R('BD/reparo'),
@@ -335,6 +344,7 @@ verificar_data_manutencao(MenuPrincipal) :-
         verificar_data_manutencao(MenuPrincipal)
     ).
 
+% retorna uma maquina especifica
 consultar_maquina_opcao(MenuPrincipal) :-
     writeln('>> Digite o codigo da maquina que deseja buscar:'),
     read_line_to_string(user_input, CodigoMaquina),
