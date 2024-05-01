@@ -2,13 +2,13 @@
 
 CODIGOS PARA RODAR CADA CLASSE:
 
-# swipl -q -f mainPrincipal.pl 
+swipl -q -f mainPrincipal.pl 
 
-# swipl -q -f mainGestor.pl 
-# menu_gestor(MenuPrincipal).
+swipl -q -f mainGestor.pl 
+menu_gestor(MenuPrincipal).
 
-# swipl -q -f mainFuncionario.pl 
-# menu_funcionario(MenuPrincipal).
+swipl -q -f mainFuncionario.pl 
+menu_funcionario(MenuPrincipal).
 
 O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por gestores, funcionários e alunos. O sistema contém funcionalidades específicas para cada usuário visando modularizar o sistema, atribuindo cada funcionalidade a entidade específica.
 
