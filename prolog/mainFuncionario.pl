@@ -24,7 +24,8 @@
     ler_avaliacao_fisica_por_cpf/1,
     listar_todas_avaliacoes_fisicas/1,
     remover_avaliacao_fisica_por_cpf/1,
-    atualizarAvaliacaoPorCPF/3
+    atualizarAvaliacaoPorCPF/3,
+    calcular_e_imprimir_imc/1
 ]).
 
 menu_funcionario(MenuPrincipal) :-
@@ -76,13 +77,13 @@ menu_avaliacao_fisica(MenuPrincipal) :-
     writeln('----------------------------------------------'),
     writeln('|         Opcoes sobre Avaliacao Fisica:     |'),
     writeln('|                                            |'),
-    writeln('|   [a] Realizar Avaliacao Fisica            |'),
-    writeln('|   [b] Buscar Avaliacao por ID              |'),
-    writeln('|   [c] Listar Todas as Avaliacoes Fisicas   |'),
-    writeln('|   [d] Atualizar Avaliacao Fisica           |'),
-    writeln('|   [e] Verificar IMC                        |'),
-    writeln('|   [f] Remover Avaliacao Fisica             |'),
-    writeln('|   [g] Voltar ao Menu Principal             |'),
+    writeln('|   [1] Realizar Avaliacao Fisica            |'),
+    writeln('|   [2] Buscar Avaliacao por ID              |'),
+    writeln('|   [3] Listar Todas as Avaliacoes Fisicas   |'),
+    writeln('|   [4] Atualizar Avaliacao Fisica           |'),
+    writeln('|   [5] Verificar IMC                        |'),
+    writeln('|   [6] Remover Avaliacao Fisica             |'),
+    writeln('|   [7] Voltar ao Menu Principal             |'),
     writeln('|                                            |'),
     writeln('|   > Digite a opcao:                        |'),
     writeln('----------------------------------------------'),
@@ -90,19 +91,19 @@ menu_avaliacao_fisica(MenuPrincipal) :-
     escolher_opcao_avaliacao_fisica(Opcao, MenuPrincipal).
 
 escolher_opcao_avaliacao_fisica(Opcao, MenuPrincipal) :-
-    (   Opcao = "a" ->
+    (   Opcao = "1" ->
             criar_avaliacao_fisica(MenuPrincipal)
-    ;   Opcao = "b" ->
+    ;   Opcao = "2" ->
             buscar_avaliacao_por_cpf(MenuPrincipal)
-    ;   Opcao = "c" ->
+    ;   Opcao = "3" ->
             listar_todas_avaliacoes_fisicas_opcao(MenuPrincipal)
-    ;   Opcao = "d" ->
+    ;   Opcao = "4" ->
             atualizar_avaliacao_fisica_opcao(MenuPrincipal)
-    ;   Opcao = "e" ->
+    ;   Opcao = "5" ->
             verificar_imc(MenuPrincipal)
-    ;   Opcao = "f" ->
+    ;   Opcao = "6" ->
             remover_avaliacao_fisica_opcao(MenuPrincipal)
-    ;   Opcao = "g" ->
+    ;   Opcao = "7" ->
             menu_funcionario(MenuPrincipal)
     ;
             writeln('Opcao invalida. Por favor, escolha novamente.'),
@@ -189,12 +190,11 @@ atualizar_avaliacao_fisica_opcao(MenuPrincipal) :-
     ).
 
 verificar_imc(MenuPrincipal) :-
-    writeln('Verificar IMC. Digite o CPF do aluno para verificar o IMC:'),
+    writeln('Digite o CPF do aluno para verificar o IMC:'),
     read_line_to_string(user_input, CPF),
-    % Implemente a lógica para verificar o IMC
     writeln('Calculando IMC...'),
-    % Código para calcular o IMC
     sleep(2),
-    writeln('IMC calculado com sucesso.'),
+    calcular_e_imprimir_imc(CPF),
     menu_avaliacao_fisica(MenuPrincipal).
+
 

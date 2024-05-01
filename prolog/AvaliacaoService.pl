@@ -6,7 +6,9 @@
     ler_avaliacao_fisica_por_cpf/1,
     listar_todas_avaliacoes_fisicas/1,
     remover_avaliacao_fisica_por_cpf/1,
-    atualizarAvaliacaoPorCPF/3
+    atualizarAvaliacaoPorCPF/3,
+    calcular_e_imprimir_imc/1,
+    calcular_imc/3 
 ]).
 
 :- use_module(util).
@@ -158,6 +160,42 @@ atualizarAvaliacaoPorCPF(CPF, NumeroCampo, NovoValor) :-
         )
     ;   writeln("Avaliacao nao existe!")
     ).
+
+
+calcular_e_imprimir_imc(CPF) :-
+    (
+        avaliacao_fisica_existe(CPF)
+        ->  atom_concat('BD/avaliacao_fisica/', CPF, Temp),
+            atom_concat(Temp, '.json', Arquivo),
+            open(Arquivo, read, Stream),
+            json_read_dict(Stream, AvaliacaoFisica),
+            close(Stream),
+            atom_number(AvaliacaoFisica.peso, Peso),
+            atom_number(AvaliacaoFisica.altura, Altura),
+            calcular_imc(Peso, Altura, IMC),
+            format('IMC: ~2f~n', [IMC]),
+            imprimir_resumo_imc(IMC)
+        ;   writeln("Avaliacao fisica nao existe!")
+    ).
+
+
+imprimir_resumo_imc(IMC) :-
+    writeln('Resumo do IMC:'),
+    (
+        IMC < 16 -> writeln('Baixo peso Grau III'), writeln('Recomenda-se procurar um medico imediatamente.')
+        ; IMC >= 16, IMC < 17 -> writeln('Baixo peso Grau II'), writeln('Recomenda-se aumentar a ingestao calorica e buscar orientacao medica.')
+        ; IMC >= 17, IMC < 18.5 -> writeln('Baixo peso Grau I'), writeln('Recomenda-se aumentar a ingestao calorica e praticar exercicios fisicos regularmente.')
+        ; IMC >= 18.5, IMC < 25 -> writeln('Peso normal'), writeln('Parabens! Seu peso esta dentro da faixa saudavel. Continue mantendo habitos saudaveis.')
+        ; IMC >= 25, IMC < 30 -> writeln('Sobrepeso'), writeln('Recomenda-se controlar a dieta e aumentar a pratica de exercicios fisicos.')
+        ; IMC >= 30, IMC < 35 -> writeln('Obesidade Grau I'), writeln('Recomenda-se uma dieta balanceada e acompanhamento medico regular.')
+        ; IMC >= 35, IMC < 40 -> writeln('Obesidade Grau II'), writeln('Recomenda-se buscar orientacao medica para iniciar um programa de perda de peso.')
+        ; IMC >= 40 -> writeln('Obesidade Grau III (morbida)'), writeln('Recomenda-se procurar um medico para avaliacao detalhada.')
+    ).
+
+
+calcular_imc(Peso, Altura, IMC) :-
+    IMC is Peso / (Altura * Altura).
+
 
 
    
