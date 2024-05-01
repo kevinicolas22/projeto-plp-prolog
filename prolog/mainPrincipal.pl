@@ -6,6 +6,9 @@
 :- use_module(library(http/json_convert)).
 :- use_module(library(thread)).
 
+:- use_module(mainFuncionario, [menu_funcionario/1]).
+:- use_module(mainGestor, [menu_gestor/1]).
+
 :- initialization(main).
 
 main :-
