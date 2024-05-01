@@ -88,7 +88,7 @@ menu_avaliacao_fisica(MenuPrincipal) :-
     writeln('|         Opcoes sobre Avaliacao Fisica:     |'),
     writeln('|                                            |'),
     writeln('|   [1] Realizar Avaliacao Fisica            |'),
-    writeln('|   [2] Buscar Avaliacao por ID              |'),
+    writeln('|   [2] Buscar Avaliacao por cpf              |'),
     writeln('|   [3] Listar Todas as Avaliacoes Fisicas   |'),
     writeln('|   [4] Atualizar Avaliacao Fisica           |'),
     writeln('|   [5] Verificar IMC                        |'),

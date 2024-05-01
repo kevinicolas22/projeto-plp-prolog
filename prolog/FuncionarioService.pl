@@ -17,7 +17,7 @@
 
 :- use_module(mainGestor, [menu_funcionario_g/1]).
 
-% Função para verificar se um funcionário já existe
+% Funcão para verificar se um funcionario ja existe
 funcionario_existe(CPF) :-
     atom_concat('BD/funcionario/', CPF, Temp),
     atom_concat(Temp, '.json', Arquivo),
@@ -26,7 +26,7 @@ funcionario_existe(CPF) :-
 adicionar_funcionario(NovoFuncionario, MenuPrincipal) :-
     CPF = NovoFuncionario.cpf,
     (   funcionario_existe(CPF)
-    ->  writeln("Funcionario já existe!"),
+    ->  writeln("Funcionario ja existe!"),
         menu_funcionario_g(MenuPrincipal)
     ;   % Cria o nome do arquivo com base no CPF
         atom_concat('BD/funcionario/', CPF, Temp),
@@ -57,38 +57,62 @@ criar_login(Funcionario):-
 criar_funcionario(MenuPrincipal) :-
     writeln("Digite o CPF (11 Digitos): "),
     read_line_to_string(user_input, CPF),
-    % Verifica se o funcionário já existe
-    (   funcionario_existe(CPF)
-    ->  writeln("Funcionario ja existe!"),
+    (   verifica_digitos(CPF)
+    ->  (   funcionario_existe(CPF)
+        ->  writeln("Funcionario ja existe!"),
+            menu_funcionario_g(MenuPrincipal)
+        ;   % Continua com o cadastro do funcionario
+            writeln("Nome do Funcionario:"),
+            read_line_to_string(user_input, Nome),
+            (   verifica_nao_vazio(Nome)
+            ->  writeln("Digite o endereco: "),
+                read_line_to_string(user_input, Endereco),
+                (   verifica_nao_vazio(Endereco)
+                ->  writeln("Digite o telefone 11 digitos ex: 08391234567"),
+                    read_line_to_string(user_input, Telefone),
+                    (   verifica_digitos(Telefone)
+                    ->  writeln("Digite a data de ingresso 8 digitos ex: DDMMAAAA"),
+                        read_line_to_string(user_input, DataIngresso),
+                        (   verifica_data(DataIngresso)
+                        ->  writeln("Digite o salario: "),
+                            read_line_to_string(user_input, Salario),
+                            (   verifica_numero_positivo(Salario)
+                            ->  NovoFuncionario = funcionario{
+                                    nome: Nome,
+                                    cpf: CPF,
+                                    endereco: Endereco,
+                                    telefone: Telefone,
+                                    data_ingresso: DataIngresso,
+                                    salario: Salario
+                                },
+                                adicionar_funcionario(NovoFuncionario, MenuPrincipal),
+                                writeln("Funcionario cadastrado com sucesso:"),
+                                writeln("Nome: " + Nome),
+                                writeln("CPF: " + CPF),
+                                writeln("Endereco: " + Endereco),
+                                writeln("Telefone: " + Telefone),
+                                writeln("Data de Ingresso: " + DataIngresso),
+                                writeln("Salario: " + Salario)
+                            ;   writeln("Salario deve ser um numero positivo."),
+                                menu_funcionario_g(MenuPrincipal)
+                            )
+                        ;   writeln("Data de Ingresso deve estar no formato DDMMAAAA."),
+                            menu_funcionario_g(MenuPrincipal)
+                        )
+                    ;   writeln("Telefone deve conter 11 digitos."),
+                        menu_funcionario_g(MenuPrincipal)
+                    )
+                ;   writeln("Endereco nao pode ser vazio."),
+                    menu_funcionario_g(MenuPrincipal)
+                )
+            ;   writeln("Nome nao pode ser vazio."),
+                menu_funcionario_g(MenuPrincipal)
+            )
+        )
+    ;   writeln("CPF invalido. Deve conter 11 digitos."),
         menu_funcionario_g(MenuPrincipal)
-    ;   % Continua com o cadastro do funcionário
-        writeln("Nome do Funcionario:"),
-        read_line_to_string(user_input, Nome),
-        writeln("Digite o endereco: "),
-        read_line_to_string(user_input, Endereco),
-        writeln("Digite o telefone 11 digitos ex: 08391234567"),
-        read_line_to_string(user_input, Telefone),
-        writeln("Digite a data de ingresso 8 digitos ex: DDMMAAAA"),
-        read_line_to_string(user_input, DataIngresso),
-        writeln("Digite o salario: "),
-        read_line_to_string(user_input, Salario),
-        NovoFuncionario = funcionario{
-            nome: Nome,
-            cpf: CPF,
-            endereco: Endereco,
-            telefone: Telefone,
-            data_ingresso: DataIngresso,
-            salario: Salario
-        },
-        adicionar_funcionario(NovoFuncionario, MenuPrincipal),
-        writeln("Funcionario cadastrado com sucesso:"),
-        writeln("Nome: " + Nome),
-        writeln("CPF: " + CPF),
-        writeln("Endereco: " + Endereco),
-        writeln("Telefone: " + Telefone),
-        writeln("Data de Ingresso: " + DataIngresso),
-        writeln("Salario: " + Salario)
     ).
+
 
 ler_funcionario(CPF) :-
     (   funcionario_existe(CPF)
@@ -148,47 +172,73 @@ ler_e_mostrar_funcionario(Arquivo) :-
     format("Salario: ~s~n", [Funcionario.salario]),
     writeln('').
 
-atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
-    
-    (funcionario_existe(CPF) ->
 
-        (   atom_concat('BD/funcionario/', CPF, Temp),
+atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
+    (   funcionario_existe(CPF)
+    ->  (   atom_concat('BD/funcionario/', CPF, Temp),
             atom_concat(Temp, '.json', Arquivo),
             open(Arquivo, read, Stream),
             json_read_dict(Stream, Funcionario),
             close(Stream),
-
             (   NumeroCampo = 1 ->
-                        FuncionarioAtualizado = Funcionario.put(nome, NovoValor)
+                    (   verifica_nao_vazio(NovoValor)
+                    ->  FuncionarioAtualizado = Funcionario.put(nome, NovoValor)
+                    ;   writeln("Nome nao pode ser vazio."),
+                        menu_funcionario_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 2 ->
-                        delete_file(Arquivo),
-                        FuncionarioAtualizado = Funcionario.put(cpf, NovoValor),
-                        adicionar_funcionario(FuncionarioAtualizado, MenuPrincipal)
+                    (   verifica_nao_vazio(NovoValor)
+                    ->  FuncionarioAtualizado = Funcionario.put(endereco, NovoValor)
+                    ;   writeln("Endereco nao pode ser vazio."),
+                        menu_funcionario_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 3 ->
-                        FuncionarioAtualizado = Funcionario.put(endereco, NovoValor)
+                    (   verifica_digitos(NovoValor)
+                    ->  FuncionarioAtualizado = Funcionario.put(telefone, NovoValor)
+                    ;   writeln("Telefone deve conter 11 digitos."),
+                        menu_funcionario_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 4 ->
-                        FuncionarioAtualizado = Funcionario.put(telefone, NovoValor)
+                    (   verifica_data(NovoValor)
+                    ->  FuncionarioAtualizado = Funcionario.put(data_ingresso, NovoValor)
+                    ;   writeln("Data de ingresso deve estar no formato DDMMAAAA."),
+                        menu_funcionario_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 5 ->
-                        FuncionarioAtualizado = Funcionario.put(data_ingresso, NovoValor)
-                ;   NumeroCampo = 6 ->
-                        FuncionarioAtualizado = Funcionario.put(salario, NovoValor)
+                    (   verifica_numero_positivo(NovoValor)
+                    ->  FuncionarioAtualizado = Funcionario.put(salario, NovoValor)
+                    ;   writeln("Salario deve ser um numero positivo."),
+                        menu_funcionario_g(MenuPrincipal)
+                    )
             ),
-
             writeln('\nAtualizando...'),
             sleep(2),
-    
-
             open(Arquivo, write, StreamWrite),
             json_write(StreamWrite, FuncionarioAtualizado),
             close(StreamWrite),
-
-            writeln('\nFuncionário Atualizado!'),
+            writeln('\nFuncionario Atualizado!'),
             sleep(2)
-
         )
     ;   writeln("Funcionario nao existe!")
     ).
 
 
+% VALIDAcÕES
 
-    
+verifica_digitos(CPF) :-
+    atom_length(CPF, 11).
+
+verifica_data(Data) :-
+    atom_length(Data, 8),
+    number_chars(_, Data).
+
+verifica_numero_positivo(Numero) :-
+    number_codes(Number, Numero),
+    all_positive(Number).
+
+all_positive(Number) :-
+    Number >= 0.
+
+verifica_nao_vazio(String) :-
+    string_length(String, Length),
+    Length > 0.

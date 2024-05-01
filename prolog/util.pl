@@ -12,6 +12,7 @@ delimitar_cpf(CPF, CPFFormatado) :-
     ;   CPFFormatado = 'CPF não possui 11 números'
     ).
 
+
 dividir_numeros_cpf(Numeros, Chunk1, Chunk2, Chunk3, UltimosDois) :-
     length(Chunk1, 3),
     length(Chunk2, 3),
@@ -55,3 +56,7 @@ deletar_arquivo(Arquivo) :-
 string_to_atom(String, Atom) :-
     string_chars(String, Chars),
     atom_chars(Atom, Chars).
+
+
+
+

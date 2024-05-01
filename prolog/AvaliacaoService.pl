@@ -1,5 +1,4 @@
 :- module(AvaliacaoService, [
-    inicializar_arquivo_json/0,
     adicionar_avaliacao_fisica/2,
     criar_avaliacao_fisica/1,
     menu_funcionario_avaliacao/1,
@@ -16,7 +15,8 @@
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 
-:- use_module(mainFuncionario, [menu_avaliacao_fisica/1]).
+:- use_module(mainFuncionario, [menu_avaliacao_fisica/1, atualizar_avaliacao_fisica_opcao/1
+]).
 
 
 % Verifica se uma avaliacao fisica ja existe
@@ -41,35 +41,55 @@ adicionar_avaliacao_fisica(NovaAvaliacaoFisica, MenuPrincipal) :-
 criar_avaliacao_fisica(MenuPrincipal) :-
     writeln("Digite o CPF do aluno para avaliacao fisica: "),
     read_line_to_string(user_input, CPF),
-    (   avaliacao_fisica_existe(CPF)
-    ->  writeln("Avaliacao fisica ja existe!"),
-        menu_avaliacao_fisica(MenuPrincipal)
-    ;   writeln("Data da Avaliacao (DDMMAAAA): "),
+    (   verifica_cpf(CPF)
+    ->  writeln("Data da Avaliacao (DDMMAAAA): "),
         read_line_to_string(user_input, DataAvaliacao),
-        writeln("Peso (kg): "),
-        read_line_to_string(user_input, Peso),
-        writeln("Altura (m): "),
-        read_line_to_string(user_input, Altura),
-        writeln("Idade: "),
-        read_line_to_string(user_input, Idade),
-        writeln("Objetivo: "),
-        read_line_to_string(user_input, Objetivo),
-        NovaAvaliacaoFisica = avaliacao_fisica{
-            cpf : CPF,
-            dataAvaliacao: DataAvaliacao,
-            peso: Peso,
-            altura: Altura,
-            idade: Idade,
-            objetivo: Objetivo
-        },
-        adicionar_avaliacao_fisica(NovaAvaliacaoFisica, MenuPrincipal),
-        writeln("Avaliacao fisica cadastrada com sucesso:"),
-        writeln("CPF: " + Cpf),
-        writeln("Data da Avaliacao: " + DataAvaliacao),
-        writeln("Peso: " + Peso + " kg"),
-        writeln("Altura: " + Altura + " m"),
-        writeln("Idade: " + Idade),
-        writeln("Objetivo: " + Objetivo)
+        (   verifica_data(DataAvaliacao)
+        ->  writeln("Peso (kg): "),
+            read_line_to_string(user_input, Peso),
+            (   verifica_numero_positivo(Peso)
+            ->  writeln("Altura (m): "),
+                read_line_to_string(user_input, Altura),
+                (   verifica_numero_positivo(Altura)
+                ->  writeln("Idade: "),
+                    read_line_to_string(user_input, Idade),
+                    (   verifica_numero_positivo(Idade)
+                    ->  writeln("Objetivo: "),
+                        read_line_to_string(user_input, Objetivo),
+                        (   verifica_nao_vazio(Objetivo)
+                        ->  NovaAvaliacaoFisica = avaliacao_fisica{
+                                cpf : CPF,
+                                dataAvaliacao: DataAvaliacao,
+                                peso: Peso,
+                                altura: Altura,
+                                idade: Idade,
+                                objetivo: Objetivo
+                            },
+                            adicionar_avaliacao_fisica(NovaAvaliacaoFisica, MenuPrincipal),
+                            writeln("Avaliacao fisica cadastrada com sucesso:"),
+                            writeln("CPF: " + CPF),
+                            writeln("Data da Avaliacao: " + DataAvaliacao),
+                            writeln("Peso: " + Peso + " kg"),
+                            writeln("Altura: " + Altura + " m"),
+                            writeln("Idade: " + Idade),
+                            writeln("Objetivo: " + Objetivo)
+                        ;   writeln("Objetivo nao pode ser vazio."),
+                            menu_avaliacao_fisica(MenuPrincipal)
+                        )
+                    ;   writeln("Idade deve ser um numero inteiro positivo."),
+                        menu_avaliacao_fisica(MenuPrincipal)
+                    )
+                ;   writeln("Altura deve ser um numero positivo."),
+                    menu_avaliacao_fisica(MenuPrincipal)
+                )
+            ;   writeln("Peso deve ser um numero positivo."),
+                menu_avaliacao_fisica(MenuPrincipal)
+            )
+        ;   writeln("Data da Avaliacao deve estar no formato DDMMAAAA."),
+            menu_avaliacao_fisica(MenuPrincipal)
+        )
+    ;   writeln("CPF invalido. Deve conter 11 digitos."),
+        menu_avaliacao_fisica(MenuPrincipal)
     ).
 
 ler_avaliacao_fisica_por_cpf(CPF) :-
@@ -125,36 +145,50 @@ ler_e_mostrar_avaliacao_fisica(Arquivo) :-
     format("Objetivo: ~s~n", [AvaliacaoFisica.objetivo]),
     writeln('').
 
-atualizarAvaliacaoPorCPF(CPF, NumeroCampo, NovoValor) :-
-    
-    (avaliacao_fisica_existe(CPF) ->
 
-        (   atom_concat('BD/avaliacao_fisica/', CPF, Temp),
+atualizarAvaliacaoPorCPF(CPF, NumeroCampo, NovoValor) :-
+    (   avaliacao_fisica_existe(CPF)
+    ->  (   atom_concat('BD/avaliacao_fisica/', CPF, Temp),
             atom_concat(Temp, '.json', Arquivo),
             open(Arquivo, read, Stream),
             json_read_dict(Stream, AvaliacaoFisica),
             close(Stream),
-
             (   NumeroCampo = 1 ->
-                        AvaliacaoAtualizada = AvaliacaoFisica.put(dataAvaliacao, NovoValor)
+                    (   verifica_data(NovoValor)
+                    ->  AvaliacaoAtualizada = AvaliacaoFisica.put(dataAvaliacao, NovoValor)
+                    ;   writeln("Data da Avaliacao deve estar no formato DDMMAAAA."),
+                        menu_avaliacao_fisica(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 2 ->
-                        AvaliacaoAtualizada = AvaliacaoFisica.put(peso, NovoValor)
+                    (   verifica_numero_positivo(NovoValor)
+                    ->  AvaliacaoAtualizada = AvaliacaoFisica.put(peso, NovoValor)
+                    ;   writeln("Peso deve ser um numero positivo."),
+                        menu_avaliacao_fisica(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 3 ->
-                        AvaliacaoAtualizada = AvaliacaoFisica.put(altura, NovoValor)
+                    (   verifica_numero_positivo(NovoValor)
+                    ->  AvaliacaoAtualizada = AvaliacaoFisica.put(altura, NovoValor)
+                    ;   writeln("Altura deve ser um numero positivo."),
+                        menu_avaliacao_fisica(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 4 ->
-                        AvaliacaoAtualizada = AvaliacaoFisica.put(idade, NovoValor)
+                    (   verifica_numero_positivo(NovoValor)
+                    ->  AvaliacaoAtualizada = AvaliacaoFisica.put(idade, NovoValor)
+                    ;   writeln("Idade deve ser um numero inteiro positivo."),
+                        menu_avaliacao_fisica(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 5 ->
-                        AvaliacaoAtualizada = AvaliacaoFisica.put(objetivo, NovoValor)
+                    (   verifica_nao_vazio(NovoValor)
+                    ->  AvaliacaoAtualizada = AvaliacaoFisica.put(objetivo, NovoValor)
+                    ;   writeln("Objetivo nao pode ser vazio."),
+                        menu_avaliacao_fisica(MenuPrincipal)
+                    )
             ),
-
             writeln('\nAtualizando...'),
             sleep(2),
-    
-
             open(Arquivo, write, StreamWrite),
             json_write(StreamWrite, AvaliacaoAtualizada),
             close(StreamWrite),
-
             writeln('\nFuncionario Atualizado!'),
             sleep(2)
         )
@@ -195,6 +229,29 @@ imprimir_resumo_imc(IMC) :-
 
 calcular_imc(Peso, Altura, IMC) :-
     IMC is Peso / (Altura * Altura).
+
+
+
+% VALIDAÇÕES
+
+verifica_cpf(CPF) :-
+    atom_length(CPF, 11).
+
+verifica_data(Data) :-
+    atom_length(Data, 8),
+    number_chars(_, Data).
+
+verifica_numero_positivo(Numero) :-
+    number_codes(Number, Numero),
+    all_positive(Number).
+
+all_positive(Number) :-
+    Number >= 0.
+
+verifica_nao_vazio(String) :-
+    string_length(String, Length),
+    Length > 0.
+
 
 
 
