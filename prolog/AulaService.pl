@@ -1,7 +1,7 @@
 :- module(AulaService, [
-    criar_aula/1,
-    adicionar_aula/2,
-    ler_aula/2,
+    criar_aula/0,
+    adicionar_aula/1,
+    ler_aula/1,
     listar_todas_aulas/1,
     remover_aula/1,
     planos_permitidos/1,
@@ -14,7 +14,7 @@
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 
-:- use_module(mainFuncionario, [menu_aulas/1]).
+:- use_module(mainFuncionario, [menu_aulas/0]).
 
 %Aulas
 
@@ -86,12 +86,12 @@ imprimir_planos([Plano|Resto]) :-
     imprimir_planos(Resto).
 
 
-adicionar_aula(NovaAula, MenuPrincipal):-
+adicionar_aula(NovaAula):-
     Nome = NovaAula.nome,
     (   aula_existe(Nome)
     ->  writeln("Aula ja existe"),
         sleep(2),
-        menu_aulas(MenuPrincipal)
+        menu_aulas
     ;
         make_directory_path('BD/aula/'),
         atom_concat('BD/aula/', Nome, Temp),
@@ -99,25 +99,25 @@ adicionar_aula(NovaAula, MenuPrincipal):-
         open(Arquivo, write, StreamWrite),
         json_write(StreamWrite, NovaAula),
         close(StreamWrite),
-        menu_aulas(MenuPrincipal)
+        menu_aulas
     ).
 
 
 
-criar_aula(MenuPrincipal):-
+criar_aula:-
     writeln('Digite o nome da aula: '),
     read_line_to_string(user_input, Nome),
     (   aula_existe(Nome)
     ->  writeln("Aula ja existe!"),
-        menu_aulas(MenuPrincipal)
+        menu_aulas
     ;   
         writeln("Digite o horário: "),
         read_line_to_string(user_input, Horario),
         planos_permitidos(Planos_Escolhidos),
-        confirmar_dados(Nome, Horario, Planos_Escolhidos, MenuPrincipal)
+        confirmar_dados(Nome, Horario, Planos_Escolhidos)
     ).
 
-confirmar_dados(Nome, Horario, Planos_Escolhidos, MenuPrincipal):-
+confirmar_dados(Nome, Horario, Planos_Escolhidos):-
     writeln(" "),
     writeln("Confirmar Dados:"),
     format('Nome: ~s~n', [Nome]),
@@ -134,20 +134,20 @@ confirmar_dados(Nome, Horario, Planos_Escolhidos, MenuPrincipal):-
                 horario: Horario,
                 planos: Planos_Escolhidos
             },
-            adicionar_aula(NovaAula, MenuPrincipal)
+            adicionar_aula(NovaAula)
         ;
             Confirmacao = "V"; Confirmacao = "v" ->
                 writeln("Voltando..."),
                 sleep(2),
-                criar_aula(MenuPrincipal)
+                criar_aula
         ;
             writeln("Opçao invalida. Por favor, digite C para confirmar ou V para voltar."),
             writeln("Tente Novamente"),
             sleep(2),
-            confirmar_dados(Nome, Horario, Planos_Escolhidos,  MenuPrincipal)
+            confirmar_dados(Nome, Horario, Planos_Escolhidos)
     ).
 
-ler_aula(Nome, MenuPrincipal) :-
+ler_aula(Nome) :-
     
         atom_concat('BD/aula/', Nome, Temp),
         atom_concat(Temp, '.json', Arquivo),

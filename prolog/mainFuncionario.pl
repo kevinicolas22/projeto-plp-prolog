@@ -1,4 +1,4 @@
-:- module(mainFuncionario, [menu_funcionario/1]).
+:- module(mainFuncionario, [menu_funcionario/0, menu_aulas/0]).
 
 :- use_module(funcionario).
 :- use_module(funcionario_service).
@@ -18,10 +18,12 @@
 :- use_module(library(random)).
 :- use_module(library(apply)).
 
+:- use_module('mainPrincipal', [main/0]).
+
 :- use_module('AulaService', [
-        criar_aula/1, 
-        adicionar_aula/2, 
-        ler_aula/2, 
+        criar_aula/0, 
+        adicionar_aula/1, 
+        ler_aula/1, 
         listar_todas_aulas/1, 
         remover_aula/1, 
         atualizarAulaPorNome/3, 
@@ -38,7 +40,7 @@
     calcular_e_imprimir_imc/1
 ]).
 
-menu_funcionario(MenuPrincipal) :-
+menu_funcionario :-
     writeln('---------------------------------------------'),
     writeln('            Funcionario Codefit             '),
     writeln('---------------------------------------------'),
@@ -54,28 +56,26 @@ menu_funcionario(MenuPrincipal) :-
     writeln('|   > Digite a opcao:                       |'),
     writeln('---------------------------------------------'),
     read_line_to_string(user_input, Opcao),
-    escolher_opcao(Opcao, MenuPrincipal).
+    escolher_opcao(Opcao).
 
-escolher_opcao(Opcao, MenuPrincipal) :-
+escolher_opcao(Opcao) :-
     (   Opcao = "1" -> 
             criar_aluno,
-            menu_funcionario(MenuPrincipal)
+            menu_funcionario
     ;   Opcao = "2" ->
             funcionario_cria_treino(MenuPrincipal)
     ;   Opcao = "3" ->
             listar_alunos(MenuPrincipal)
     ;   Opcao = "4" ->
-            menu_aulas(MenuPrincipal)
+            menu_aulas
     ;   Opcao = "5" ->
             liberar_acesso_aluno(MenuPrincipal)
     ;   Opcao = "6" ->
             menu_avaliacao_fisica(MenuPrincipal)
     ;   Opcao = "7" ->
-            writeln('Encerrando o programa...'),
-            halt
+            main
     ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
-            menu_gestor(MenuPrincipal),
-            fail 
+            menu_funcionario
     ).
 
 
@@ -114,7 +114,7 @@ escolher_opcao_avaliacao_fisica(Opcao, MenuPrincipal) :-
     ;   Opcao = "6" ->
             remover_avaliacao_fisica_opcao(MenuPrincipal)
     ;   Opcao = "7" ->
-            menu_funcionario(MenuPrincipal)
+            menu_funcionario
     ;
             writeln('Opcao invalida. Por favor, escolha novamente.'),
             menu_avaliacao_fisica(MenuPrincipal)
@@ -209,7 +209,7 @@ verificar_imc(MenuPrincipal) :-
 
 %Aula
 
-menu_aulas(MenuPrincipal) :-
+menu_aulas :-
     writeln('---------------------------------------------'),
     writeln('                 Menu Aulas                  '),
     writeln('---------------------------------------------'),
@@ -229,60 +229,60 @@ menu_aulas(MenuPrincipal) :-
 
 escolher_opcao_menu_aulas(Opcao, MenuPrincipal) :-
         (   Opcao = "1" -> 
-                cadastrar_aula(MenuPrincipal)
+                cadastrar_aula
         ;   Opcao = "2" ->
-                exibir_aula(MenuPrincipal)
+                exibir_aula
         ;   Opcao = "3" ->
-                ler_todas_aulas(MenuPrincipal)
+                ler_todas_aulas
         ;   Opcao = "4" ->
-                excluir_aula(MenuPrincipal)
+                excluir_aula
         ;   Opcao = "5" ->
-                alterar_aula(MenuPrincipal)
+                alterar_aula
         ;   Opcao = "0" ->
-                menu_funcionario(MenuPrincipal)
+                menu_funcionario
         ;   
                 writeln('Opção invalida. Por favor, escolha novamente.'),
-                menu_aulas(MenuPrincipal)
+                menu_aulas
         ).
 
-cadastrar_aula(MenuPrincipal) :-
-        criar_aula(MenuPrincipal),
+cadastrar_aula :-
+        criar_aula,
         sleep(2),
-        menu_aulas(MenuPrincipal).
+        menu_aulas.
 
-exibir_aula(MenuPrincipal) :-
+exibir_aula :-
     writeln("Digite o nome da aula: "),
     read_line_to_string(user_input, Nome),
     writeln("Processando..."),
     (   aula_existe(Nome) ->
                 writeln(''),
             sleep(2),
-            ler_aula(Nome, MenuPrincipal),
+            ler_aula(Nome),
             writeln('\n\n [0] Voltar'),
             read_line_to_string(user_input, Op),
             (   Op = "0" ->
-                    menu_aulas(MenuPrincipal)
+                    menu_aulas
             ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
-                    exibir_aula(MenuPrincipal)
+                    exibir_aula
             )
     ;   writeln("Aula não existe!"),
-        exibir_aula(MenuPrincipal)
+        exibir_aula
     ).
 
         
-ler_todas_aulas(MenuPrincipal) :-
+ler_todas_aulas :-
     writeln('------------AULAS------------'),
     sleep(2),
     listar_todas_aulas('BD/aula'),
     writeln('\n\n [0] Voltar'),
     read_line_to_string(user_input, Op),
     (   Op = "0" ->
-            menu_aulas(MenuPrincipal)
+            menu_aulas
     ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
-        ler_todas_aulas(MenuPrincipal)
+        ler_todas_aulas
     ).
 
-excluir_aula(Nome):-
+excluir_aula:-
         writeln('>> Digite o Nome da aula que deseja remover:'),
     read_line_to_string(user_input, Nome),
     writeln('Removendo...\n'),
@@ -291,12 +291,12 @@ excluir_aula(Nome):-
     writeln('\n\n [0] Voltar'),
     read_line_to_string(user_input, Op),
     (   Op = "0" ->
-            menu_aulas(MenuPrincipal)
+            menu_aulas
     ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
-        excluir_aula(MenuPrincipal)
+        excluir_aula
     ).
 
-alterar_aula(MenuPrincipal) :-
+alterar_aula :-
         writeln('----------------------------------------------'),
         writeln('|        Escolha o dado da aula a ser        |'),
         writeln('|                 atualizado:                |'),
@@ -314,23 +314,23 @@ alterar_aula(MenuPrincipal) :-
                 read_line_to_string(user_input, Nome),
                 writeln(''),
                 (aula_existe(Nome) ->
-                        ler_aula(Nome, MenuPrincipal),
+                        ler_aula(Nome),
                         writeln(''),
                         (  Numero = 1 ->
                                 
                                 writeln('Insira o novo valor do horario: '),
                                 read_line_to_string(user_input, NovoValor),
                                 atualizarAulaPorNome(Nome, Numero, NovoValor),
-                                menu_aulas(MenuPrincipal)
+                                menu_aulas
                         ;  Numero = 2 ->
                                 writeln("Escolha o(s) novo(s) plano(s)"),
                                 planos_permitidos(Planos_Escolhidos),
                                 atualizarAulaPorNome(Nome, Numero, Planos_Escolhidos),
-                                menu_aulas(MenuPrincipal)
+                                menu_aulas
 
                         )
                 ;       writeln("Aula nao existe!"),
-                       menu_aulas(MenuPrincipal)
+                       menu_aulas
 
                 )
                 
@@ -339,8 +339,8 @@ alterar_aula(MenuPrincipal) :-
                         writeln('\n [0] Voltar'),
                         read_line_to_string(user_input, Op),
                         (   Op = "0" ->
-                                menu_aulas(MenuPrincipal)
+                                menu_aulas
                         ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
-                                alterar_aula(MenuPrincipal)
+                                alterar_aula
                         )
         ).

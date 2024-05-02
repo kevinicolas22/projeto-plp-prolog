@@ -1,8 +1,7 @@
 :- module(FuncionarioService, [
     inicializar_arquivo_json/0,
-    adicionar_funcionario/2,
-    criar_funcionario/1,
-    menu_gestor_funcionario/1,
+    adicionar_funcionario/1,
+    criar_funcionario/0,
     ler_funcionario/1,
     remover_funcionario/1,
     listar_todos_funcionarios/1,
@@ -15,7 +14,7 @@
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 
-:- use_module(mainGestor, [menu_funcionario_g/1]).
+:- use_module(mainGestor, [menu_funcionario_g/0]).
 
 % Funcão para verificar se um funcionario ja existe
 funcionario_existe(CPF) :-
@@ -23,11 +22,11 @@ funcionario_existe(CPF) :-
     atom_concat(Temp, '.json', Arquivo),
     exists_file(Arquivo).
 
-adicionar_funcionario(NovoFuncionario, MenuPrincipal) :-
+adicionar_funcionario(NovoFuncionario) :-
     CPF = NovoFuncionario.cpf,
     (   funcionario_existe(CPF)
     ->  writeln("Funcionario ja existe!"),
-        menu_funcionario_g(MenuPrincipal)
+        menu_funcionario_g
     ;   % Cria o nome do arquivo com base no CPF
         atom_concat('BD/funcionario/', CPF, Temp),
         atom_concat(Temp, '.json', Arquivo),
@@ -35,7 +34,7 @@ adicionar_funcionario(NovoFuncionario, MenuPrincipal) :-
         json_write(StreamWrite, NovoFuncionario),
         close(StreamWrite),
         criar_login(NovoFuncionario),
-        menu_funcionario_g(MenuPrincipal)
+        menu_funcionario_g
     ).
 
 criar_login(Funcionario):-
@@ -54,13 +53,13 @@ criar_login(Funcionario):-
     close(StreamWrite).
 
 
-criar_funcionario(MenuPrincipal) :-
+criar_funcionario :-
     writeln("Digite o CPF (11 Digitos): "),
     read_line_to_string(user_input, CPF),
     (   verifica_digitos(CPF)
     ->  (   funcionario_existe(CPF)
         ->  writeln("Funcionario ja existe!"),
-            menu_funcionario_g(MenuPrincipal)
+            menu_funcionario_g
         ;   % Continua com o cadastro do funcionario
             writeln("Nome do Funcionario:"),
             read_line_to_string(user_input, Nome),
@@ -85,7 +84,7 @@ criar_funcionario(MenuPrincipal) :-
                                     data_ingresso: DataIngresso,
                                     salario: Salario
                                 },
-                                adicionar_funcionario(NovoFuncionario, MenuPrincipal),
+                                adicionar_funcionario(NovoFuncionario),
                                 writeln("Funcionario cadastrado com sucesso:"),
                                 writeln("Nome: " + Nome),
                                 writeln("CPF: " + CPF),
@@ -94,23 +93,23 @@ criar_funcionario(MenuPrincipal) :-
                                 writeln("Data de Ingresso: " + DataIngresso),
                                 writeln("Salario: " + Salario)
                             ;   writeln("Salario deve ser um numero positivo."),
-                                menu_funcionario_g(MenuPrincipal)
+                                menu_funcionario_g
                             )
                         ;   writeln("Data de Ingresso deve estar no formato DDMMAAAA."),
-                            menu_funcionario_g(MenuPrincipal)
+                            menu_funcionario_g
                         )
                     ;   writeln("Telefone deve conter 11 digitos."),
-                        menu_funcionario_g(MenuPrincipal)
+                        menu_funcionario_g
                     )
                 ;   writeln("Endereco nao pode ser vazio."),
-                    menu_funcionario_g(MenuPrincipal)
+                    menu_funcionario_g
                 )
             ;   writeln("Nome nao pode ser vazio."),
-                menu_funcionario_g(MenuPrincipal)
+                menu_funcionario_g
             )
         )
     ;   writeln("CPF invalido. Deve conter 11 digitos."),
-        menu_funcionario_g(MenuPrincipal)
+        menu_funcionario_g
     ).
 
 

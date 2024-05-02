@@ -1,5 +1,10 @@
-:- module(util, [delimitar_cpf/2, limpar_terminal/0, ler_json/2, deletar_arquivo/1, string_to_atom/2]).
+:- module(util, [delimitar_cpf/2,
+ limpar_terminal/0, 
+ ler_json/2, 
+ deletar_arquivo/1, 
+ string_to_atom/2]).
 
+:- usemodule(library(process)).
 :- use_module(library(http/json)).
 
 delimitar_cpf(CPF, CPFFormatado) :-
@@ -43,12 +48,6 @@ ler_json(NomeArquivo, Conteudo) :-
 not_existe_file(Arquivo):-
     \+ exists_file(Arquivo).
 
-limpar_terminal :-
-    between(1, 100, _), % Imprimir 100 linhas em branco
-    nl, % Nova linha
-    fail. % Faz o loop falhar para parar
-limpar_terminal. % Finaliza o predicado
-
 deletar_arquivo(Arquivo) :-
     atom_concat('rm ', Arquivo, Command),
     shell(Command).
@@ -58,5 +57,8 @@ string_to_atom(String, Atom) :-
     atom_chars(Atom, Chars).
 
 
-
+limpar_terminal :-
+    current_prolog_flag(windows, true),
+    process_create(path(cmd), ['/C', 'cls'], [process(PID)]),
+    process_wait(PID, ), !.
 
