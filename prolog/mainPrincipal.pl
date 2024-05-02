@@ -6,10 +6,14 @@
 :- use_module(library(http/json_convert)).
 :- use_module(library(thread)).
 
+:- use_module(mainFuncionario, [menu_funcionario/0]).
+:- use_module(mainGestor, [menu_gestor/1]).
+
+
 :- initialization(main).
 
 main :-
-    limpar_terminal,
+    
     writeln('_________________________________________________________'),
     writeln('               Seja Bem-vindo a CodeFit                  '),
     writeln('_________________________________________________________'),
@@ -20,7 +24,7 @@ main :-
     write('| > Tipo de usuario (''!'' Para Sair): '),
     flush_output,
     read_line_to_codes(user_input, TipoUsuarioCodes),
-    atom_chars(TipoUsuario, TipoUsuarioCodes), 
+    atom_chars(TipoUsuario, TipoUsuarioCodes),  
     
     (TipoUsuario = '!' ->
         writeln("Encerrando..."),
@@ -36,23 +40,15 @@ main :-
 
     ).
 
-
-    atom_number(TipoUsuario, TipoUsuarioInt),
-    tipo_usuario_correto(TipoUsuarioInt, TipoUsuarioValidado),
-        (   TipoUsuarioValidado =:= 1 ->
-            writeln('login_aluno')
-        ;   loginMembro(TipoUsuarioValidado)
-        
-        ).
        
 loginMembro(TipoUsuario):-
-    limpar_terminal,
+    
     writeln('_________________________________________________________'),
     writeln('               Seja Bem-vindo a CodeFit                  '),
     writeln('_________________________________________________________'),
     writeln('__________________________LOGIN__________________________'),
     writeln('Digite o seu cpf (! para sair): '),
-    read(CPF),
+    read_line_to_string(user_input, CPF),
 
 
     (CPF = '!' ->
@@ -60,7 +56,7 @@ loginMembro(TipoUsuario):-
         halt
     ;
         writeln('Digite sua senha: '),
-        read(Senha),
+        read_line_to_string(user_input, Senha),
         writeln('Carregando ...'),
         validadorLogin(CPF, TipoUsuario, Senha),
         sleep(2)
@@ -94,20 +90,18 @@ validadorLogin(Cpf, TipoUsuarioV, SenhaV):-
 menu_usuario(TipoUsuario) :-
     (
         TipoUsuario =:= 2 ->
-            writeln('MENU GESTOR')
+            menu_gestor(MenuPrincipal)
         ;   TipoUsuario =:= 3 ->
-            writeln('MENU FUNCIONARIO')
+            write("func")
     ).
 
 
 tipo_usuario_correto(X, X) :-
     verificar_int_tipo_funcionario(X).
 tipo_usuario_correto(_, TipoCorreto) :-
-    writeln('Opção inválida, tente novamente!'),
+    writeln('Opcao invalida, tente novamente!'),
     read(NovaOpcao),
     tipo_usuario_correto(NovaOpcao, TipoCorreto).
 
 verificar_int_tipo_funcionario(X) :-
     between(1, 3, X).
-
-

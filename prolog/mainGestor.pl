@@ -35,10 +35,11 @@ escolher_opcao_gestor(Opcao, MenuPrincipal) :-
     ; Opcao = "4" ->
         menu_financeiro_g(MenuPrincipal)
     ; Opcao = "5" ->
-        MenuPrincipal
+        main
     ;
         writeln('Opção inválida. Por favor, escolha novamente.'),
-        menu_gestor(MenuPrincipal)
+        menu_gestor(MenuPrincipal),
+        fail
     ).
 
 % GESTOR 
@@ -62,7 +63,7 @@ menu_gestor_g(MenuPrincipal) :-
 
 escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
     (   Opcao = "1" ->
-            criar_gestor(MenuPrincipal)
+            criar_gestor_g(MenuPrincipal)
     ;   Opcao = "2" ->
             atualizar_gestor_opcao(MenuPrincipal)
     ;   Opcao = "3" ->
@@ -78,13 +79,8 @@ escolher_opcao_gestor_g(Opcao, MenuPrincipal) :-
             menu_gestor_g(MenuPrincipal)
     ).
 
-criar_gestor(MenuPrincipal) :-
-        GestorService : criar_gestor(NovoGestor),
-        writeln('Nova senha de acesso: '),
-        senha_valida(SenhaGestor),
-        GestorService:adicionar_gestor(NovoGestor, SenhaGestor),
-        sleep(2),
-        menu_gestor(MenuPrincipal).
+criar_gestor_g(MenuPrincipal) :-
+        criar_gestor.
 
 atualizar_gestor_opcao(MenuPrincipal) :-
     writeln('>> Digite o CPF do gestor que deseja atualizar:'),

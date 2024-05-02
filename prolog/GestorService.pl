@@ -1,23 +1,29 @@
 :- module(GestorService, [
     inicializar_arquivo_json/0,
     adicionar_gestor/2,
-    criar_gestor/1,
+    criar_gestor/0,
     atualizar_gestor_porCpf/3,
     listar_gestores/1,
     consultar_gestor/1,
-    imprimir_folha_pagamento/1,
-    gerar_relatorio/0,
-    remover_gestor/1
+    /*imprimir_folha_pagamento/1,
+    gerar_relatorio/0,*/
+    remover_gestor/1,
+    criar_login/1
     
 ]).
 
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
+:- use_module(util).
+
+:- use_module(mainGestor, [menu_gestor_g/1]).
 
 inicializar_arquivo_json :-
     open('gestor.json', write, Stream),
     json_write(Stream, _{}),
     close(Stream).
+
+:- dynamic gestor_existe/1.
 
 gestor_existe(CPFG) :-
     atom_concat('BD/gestor/', CPFG, Temp),
@@ -34,31 +40,75 @@ adicionar_gestor(NovoGestor, MenuPrincipal) :-
         open(Arquivo, write, StreamWrite),
         json_write(StreamWrite, NovoGestor),
         close(StreamWrite),
+        criar_login(NovoGestor),
         menu_gestor(MenuPrincipal)
     ).
 
-criar_gestor(MenuPrincipal) :-
-    writeln("Digite o CPFG (11 Digitos): "),
+
+criar_login(Gestor):-
+    writeln('Digite a senha do login: '),
+    read_line_to_string(user_input, SenhaGestor),
+    CpfG = Gestor.cpfG,
+    NovoLogin = login{
+        cpf: CpfG,
+        senha: SenhaGestor,
+        tipoUsuario: 2
+    },
+    atom_concat('BD/login/', CpfG, Temp1),
+    atom_concat(Temp1, '.json', Arquivo1),
+    open(Arquivo1, write, StreamWrite),
+    json_write(StreamWrite, NovoLogin),
+    close(StreamWrite).
+
+criar_gestor:-
+    writeln("Digite o CPF (11 Digitos): "),
     read_line_to_string(user_input, CPFG),
-    (   gestor_existe(CPFG)
-    ->  writeln("Gestor já existe!"),
-        menu_gestor(MenuPrincipal)
-    ;   writeln("Nome do Gestor: "),
-        read_line_to_string(user_input, NomeG),
-        writeln("Digite o endereco: "),
-        read_line_to_string(user_input, EnderecoG),
-        writeln("Digite o telefone 11 digitos ex: 08391234567"),
-        read_line_to_string(user_input, TelefoneG),
-        writeln("Digite a data de nascimento 8 digitos ex: DDMMAAAA"),
-        read_line_to_string(user_input, DataNascimentoG),
-        NovoGestor = gestor{ nomeG: NomeG, cpfG: CPFG, enderecoG: EnderecoG, telefoneG: TelefoneG, dataNascimentoG: DataNascimentoG },
-        adicionar_gestor(NovoGestor, MenuPrincipal),
-        writeln("Gestor cadastrado com sucesso:"),
-        writeln("Nome: " + NomeG),
-        writeln("CPFG: " + CPFG),
-        writeln("Endereco: " + EnderecoG),
-        writeln("Telefone: " + TelefoneG),
-        writeln("Data de Nascimento: " + DataNascimentoG)
+    (   verifica_digitos(CPFG)
+    ->  (   gestor_existe(CPFG)
+        ->  writeln("Gestor ja existe!"),
+            menu_gestor_g(MenuPrincipal)
+        ;     
+            writeln("Nome do Gestor:"),
+            read_line_to_string(user_input, NomeG),
+            (   verifica_nao_vazio(NomeG)
+            ->  writeln("Digite o endereco: "),
+                read_line_to_string(user_input, EnderecoG),
+                (   verifica_nao_vazio(EnderecoG)
+                ->  writeln("Digite o telefone 11 digitos ex: 08391234567"),
+                    read_line_to_string(user_input, TelefoneG),
+                    (   verifica_digitos(TelefoneG)
+                    ->  writeln("Digite a data de nascimento 8 digitos ex: DDMMAAAA"),
+                        read_line_to_string(user_input, DataNascimentoG),
+                        (   verifica_data(DataNascimentoG)
+                        ->  NovoGestor = gestor{
+                                nomeG: NomeG,
+                                cpfG: CPFG,
+                                enderecoG: EnderecoG,
+                                telefoneG: TelefoneG,
+                                dataNascimentoG: DataNascimentoG
+                                },
+                            adicionar_gestor(NovoGestor,MenuPrincipal),
+                            writeln("Gestor cadastrado com sucesso:"),
+                            writeln("Nome: " + NomeG),
+                            writeln("CPFG: " + CPFG),
+                            writeln("Endereco: " + EnderecoG),
+                            writeln("Telefone: " + TelefoneG),
+                            writeln("Data de Nascimento: " + DataNascimentoG)
+                        ;   writeln("Data de Nascimento deve estar no formato DDMMAAAA."),
+                            menu_gestor_g(MenuPrincipal)
+                            )
+                        ;   writeln("Telefone deve conter 11 digitos."),
+                            menu_gestor_g(MenuPrincipal)
+                        )
+                    ;   writeln("Endereco nao pode ser vazio."),
+                        menu_gestor_g(MenuPrincipal)
+                    )
+                ;   writeln("Nome nao pode ser vazio."),
+                    menu_gestor_g(MenuPrincipal)
+                )
+        )
+        ;   writeln("CPF invalido. Deve conter 11 digitos."),
+            menu_gestor_g(MenuPrincipal)
     ).
 
 
@@ -73,17 +123,36 @@ atualizar_gestor_porCpf(CPFG, NumeroCampo, NovoValor) :-
             close(Stream),
 
             (   NumeroCampo = 1 ->
-                        GestorAtualizado = Gestor.put(nomeG, NovoValor)
+                    (   verifica_nao_vazio(NovoValor)
+                    ->  GestorAtualizado = Gestor.put(nomeG, NovoValor)
+                    ;   writeln("Nome nao pode ser vazio."),
+                        menu_gestor_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 2 ->
-                        delete_file(Arquivo),
-                        GestorAtualizado = Gestor.put(cpfG, NovoValor),
-                        adicionar_gestor(GestorAtualizado, MenuPrincipal)
+                        (   verifica_nao_vazio(NovoValor)
+                    ->  GestorAtualizado = Gestor.put(cpfG, NovoValor)
+                    ;   writeln("Cpf nao pode ser vazio."),
+                        menu_gestor_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 3 ->
-                        GestorAtualizado = Gestor.put(enderecoG, NovoValor)
+                        (   verifica_nao_vazio(NovoValor)
+                    ->  GestorAtualizado = Gestor.put(enderecoG, NovoValor)
+                    ;   writeln("Endereco nao pode ser vazio."),
+                        menu_gestor_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 4 ->
-                        GestorAtualizado = Gestor.put(telefoneG, NovoValor)
+                        (   verifica_nao_vazio(NovoValor)
+                    ->  GestorAtualizado = Gestor.put(telefoneG, NovoValor)
+                    ;   writeln("Telefone nao pode ser vazio."),
+                        menu_gestor_g(MenuPrincipal)
+                    )
                 ;   NumeroCampo = 5 ->
-                        GestorAtualizado = Gestor.put(dataNascimentoG, NovoValor)
+                        (   verifica_nao_vazio(NovoValor)
+                    ->  GestorAtualizado = Gestor.put(dataNascimentoG, NovoValor)
+                    ;   writeln("Data Nascimento nao pode ser vazio."),
+                        menu_gestor_g(MenuPrincipal)
+                    )
+                    
             ),
 
             writeln('\nAtualizando...'),
@@ -100,6 +169,7 @@ atualizar_gestor_porCpf(CPFG, NumeroCampo, NovoValor) :-
         )
     ;   writeln("Gestor nao existe!")
     ).
+
 
 
 listar_gestores(Path) :-
@@ -145,14 +215,18 @@ consultar_gestor(CPFG) :-
 
 
 remover_gestor(CPFG) :-
-    (   gestor_existe(CPFG)
-      %string_to_atom(CPFG,CPfG)
-    ->  atom_concat('BD/gestor/', CPFG, Temp),
-        atom_concat(Temp, '.json', Arquivo),
-        delete_file(Arquivo),
-        writeln("Gestor removido com sucesso!")
-    ;   writeln("Gestor nao existe!")
-    ).
+    gestor_existe(CPFG),
+    atom_concat('BD/gestor/', CPFG, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    atom_concat('BD/login/', CPFG, Temp1),
+    atom_concat(Temp1, '.json', Arquivo1),
+    delete_file(Arquivo),
+    delete_file(Arquivo1),
+    retractall(gestor_existe(CPFG)),
+    writeln("Gestor removido com sucesso!").
+
+remover_gestor(_) :-
+    writeln("Gestor nao existe ou nao é possível remover, pois deve existir pelo menos um gestor.").
 
 
 /*imprimir_folha_pagamento(CPF) :-
@@ -185,7 +259,25 @@ funcionario_existe(CPF) :-
 
 % gerar relatorio que calcula o valor total que a acdemia recebe(valor, plano), quantidade de alunos em cada plano, media de pagamento por aluno, receita total.
 
+% VALIDAcÕES
 
+verifica_digitos(CPFG) :-
+    atom_length(CPFG, 11).
+
+verifica_data(Data) :-
+    atom_length(Data, 8),
+    number_chars(_, Data).
+
+verifica_numero_positivo(Numero) :-
+    number_codes(Number, Numero),
+    all_positive(Number).
+
+all_positive(Number) :-
+    Number >= 0.
+
+verifica_nao_vazio(String) :-
+    string_length(String, Length),
+    Length > 0.
 
 
 
