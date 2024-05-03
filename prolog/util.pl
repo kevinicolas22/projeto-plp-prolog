@@ -1,8 +1,10 @@
+
 :- module(util, [delimitar_cpf/2,
  limpar_terminal/0, 
  ler_json/2, 
  deletar_arquivo/1, 
  string_to_atom/2]).
+
 
 :- usemodule(library(process)).
 :- use_module(library(http/json)).
@@ -61,3 +63,4 @@ limpar_terminal :-
     current_prolog_flag(windows, true),
     process_create(path(cmd), ['/C', 'cls'], [process(PID)]),
     process_wait(PID, ), !.
+
