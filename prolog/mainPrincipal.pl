@@ -7,7 +7,9 @@
 :- use_module(library(thread)).
 
 :- use_module(mainFuncionario, [menu_funcionario/0]).
-:- use_module(mainGestor, [menu_gestor/0]).
+
+:- use_module(mainGestor, [menu_gestor/1]).
+
 
 
 :- initialization(main).
@@ -90,16 +92,17 @@ validadorLogin(Cpf, TipoUsuarioV, SenhaV):-
 menu_usuario(TipoUsuario) :-
     (
         TipoUsuario =:= 2 ->
-            menu_gestor
+            menu_gestor(MenuPrincipal)
         ;   TipoUsuario =:= 3 ->
             menu_funcionario
+
     ).
 
 
 tipo_usuario_correto(X, X) :-
     verificar_int_tipo_funcionario(X).
 tipo_usuario_correto(_, TipoCorreto) :-
-    writeln('Opção inválida, tente novamente!'),
+    writeln('Opcao invalida, tente novamente!'),
     read(NovaOpcao),
     tipo_usuario_correto(NovaOpcao, TipoCorreto).
 

@@ -1,10 +1,12 @@
+
 :- module(util, [delimitar_cpf/2,
  limpar_terminal/0, 
  ler_json/2, 
  deletar_arquivo/1, 
  string_to_atom/2]).
 
-:- usemodule(library(process)).
+:- use_module(library(process)).
+
 :- use_module(library(http/json)).
 
 delimitar_cpf(CPF, CPFFormatado) :-
@@ -16,6 +18,8 @@ delimitar_cpf(CPF, CPFFormatado) :-
         atomic_list_concat([AtomChunk1, '.', AtomChunk2, '.', AtomChunk3, '-', AtomUltimosDois], CPFFormatado)
     ;   CPFFormatado = 'CPF não possui 11 números'
     ).
+
+
 
 
 dividir_numeros_cpf(Numeros, Chunk1, Chunk2, Chunk3, UltimosDois) :-
@@ -61,4 +65,3 @@ limpar_terminal :-
     current_prolog_flag(windows, true),
     process_create(path(cmd), ['/C', 'cls'], [process(PID)]),
     process_wait(PID, ), !.
-
