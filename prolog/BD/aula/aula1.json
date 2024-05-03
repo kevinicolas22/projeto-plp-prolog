@@ -1,0 +1,5 @@
+{
+  "horario":"teste",
+  "nome":"aula1",
+  "planos": ["light", "gold", "premium" ]
+}
