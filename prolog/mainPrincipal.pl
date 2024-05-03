@@ -7,7 +7,9 @@
 :- use_module(library(thread)).
 
 :- use_module(mainFuncionario, [menu_funcionario/0]).
+
 :- use_module(mainGestor, [menu_gestor/1]).
+
 
 
 :- initialization(main).
@@ -92,7 +94,8 @@ menu_usuario(TipoUsuario) :-
         TipoUsuario =:= 2 ->
             menu_gestor(MenuPrincipal)
         ;   TipoUsuario =:= 3 ->
-            write("func")
+            menu_funcionario
+
     ).
 
 
@@ -105,3 +108,4 @@ tipo_usuario_correto(_, TipoCorreto) :-
 
 verificar_int_tipo_funcionario(X) :-
     between(1, 3, X).
+
