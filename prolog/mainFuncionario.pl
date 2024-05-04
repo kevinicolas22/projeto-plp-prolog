@@ -1,15 +1,14 @@
 :- module(mainFuncionario, [menu_funcionario/0, menu_aulas/0]).
 
 :- use_module(funcionario).
-:- use_module(funcionario_service).
-:- use_module(avaliacao_fisica).
-:- use_module(treino).
+:- use_module(funcionarioService).
+:- use_module(avaliacaoFisica).
+%:- use_module(treino).
 :- use_module(aula).
-:- use_module(main_aluno).
-:- use_module(aluno_controller).
-:- use_module(aula_service).
+:- use_module(mainAluno).
+:- use_module(aulaService).
 :- use_module(aluno).
-:- use_module(planos).
+:- use_module(plano).
 :- use_module(library(lists)).
 :- use_module(library(pairs)).
 :- use_module(library(ansi_term)).

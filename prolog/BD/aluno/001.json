@@ -1,6 +1,6 @@
 {
-  "aulasAluno": ["boxe" ],
-  "contatoAluno":"999999999",
+  "aulasAluno": ["boxe", "aula3" ],
+  "contatoAluno":"83988919144",
   "cpfAluno":"06639930400",
   "emDia":"true",
   "enderecoAluno":"Rua prefeito Francisco camilo ,160",
@@ -9,5 +9,14 @@
   "planoAluno":"premium",
   "saldo":"135.0",
   "senhaAluno":"jp14",
-  "treinos": []
+  "treinos": [
+    {
+      "exercicios": ["Agachamento", "Supino", "Flexao de Braco" ],
+      "tipo":"Peito"
+    },
+    {
+      "exercicios": ["Corrida", "Abdominais", "Flexoes" ],
+      "tipo":"Costas"
+    }
+  ]
 }

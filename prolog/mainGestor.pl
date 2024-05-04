@@ -10,7 +10,7 @@
 :- use_module(library(ansi_term)).
 :- use_module('GestorService').
 :- use_module('MaquinaService').
-:- use_module('FuncionarioService', [
+:- use_module('funcionarioService', [
         adicionar_funcionario/1, 
         criar_funcionario/0, 
         ler_funcionario/1, 

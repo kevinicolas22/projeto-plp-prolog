@@ -1,12 +1,13 @@
 :- module(mainAluno, [login_aluno/0, menu_aluno/1]).
 :- use_module(aluno).
 :- use_module(aulaService, [listar_todas_aulas/1, aula_existe/1]).
-:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1]).
+:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1,carregar_e_exibir_treinos/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 :- use_module(library(process)).
 :- use_module(library(smtp)).
+:- use_module(pagamento).
 
 :- use_module(mainAluno, [menu_aluno/1]).
 
@@ -65,11 +66,20 @@ menu_aluno(Aluno):-
      Opcao = "2"-> altera_plano(Aluno);
      Opcao = "3"-> dados_aluno(Aluno);
      Opcao = "4"-> aulas_coletivas(Aluno);
+     Opcao = "5"-> treinos(Aluno);
      Opcao = "6"-> realiza_pagamento(Aluno);
      Opcao = "7" -> realiza_recarga(Aluno);
      Opcao = "8" -> consulta_avaliacao_fisica(Aluno);
      writeln('Opcao invalida!'),
      menu_aluno(Aluno)).
+    
+treinos(Aluno):-
+    write('\n\n---------- MEUS TREINOS ---------\n'),
+    carregar_e_exibir_treinos(Aluno),
+    write('\n\n[0] Voltar     [1] Solicitar treino\n:'),
+    read_line_to_string(user_input, Opcao),
+    (Opcao = "0"-> menu_aluno(Aluno);
+    treinos(ALuno)).
 
 
 
@@ -132,11 +142,20 @@ realiza_pagamento(Aluno):-
      realiza_pagamento(Aluno) ;
      writeln('*Processando pagamento...*'),
      sleep(1),
+     adiciona_pagamento(Aluno,Plano),
      enviar_email(Aluno, Plano),
      writeln('\e[32mPagamento realizado.\e[0m'),
      sleep(2),
      atualizaAlunoPelaMat(Aluno.matricula, 14, "true")
      ).
+     
+adiciona_pagamento(Aluno,Plano):-
+    NovoPagamento = pagamento{valor: Plano.valorMensal, plano: Plano.tipo},
+    atom_concat('BD/pagamentos/', Aluno.matricula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    open(Arquivo, write, StreamWrite),
+    json_write(StreamWrite, NovoPagamento),
+    close(StreamWrite).
 
 enviar_email(Aluno, Plano) :-
     smtp_send_mail(
@@ -235,7 +254,7 @@ dados_aluno(Aluno):-
     write('Contato: '), format("~s~n", [Aluno.contatoAluno]),
     write('Plano: '), format("~s~n", [Aluno.planoAluno]),
     write('Mensalidade: '), 
-    (Aluno.emDia = "true"-> write('\n\e[32mEm dia\e[0m\n');
+    (Aluno.emDia = "true"-> write('\e[32mEm dia\e[0m\n');
     write('\e[31mPendente\e[0m\n')),
 
     write('Matricula: '), format("~s~n", [Aluno.matricula]),

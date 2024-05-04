@@ -1,9 +1,10 @@
-:- module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1]).
+:- module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1, carregar_e_exibir_treinos/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 :- use_module(mainAluno, [menu_aluno/1]).
 :- use_module(avaliacaoFisica).
+:- use_module(treino).
 
 exibe_avaliacao_aluno(Aluno):-
     atom_concat('BD/avaliacao_fisica/', Aluno.cpfAluno, Temp),
@@ -63,4 +64,32 @@ atualizaAlunoPelaMat(Matricula, CampoDeAtualizacao, NovoValor):-
     json_write_dict(WriteStream, AlunoAtualizado), % Escreve o aluno atualizado no arquivo
     close(WriteStream), % Fecha o arquivo
     menu_aluno(AlunoAtualizado).
+
+carregar_e_exibir_treinos(Aluno) :-
+    exibir_treinos(Aluno).
+
+% Predicado para exibir os treinos presentes no dicionário JSON
+exibir_treinos(Dict) :-
+    % Verifica se o dicionário contém a chave "treinos"
+    (   get_dict(treinos, Dict, Treinos),
+        % Itera sobre cada treino e exibe seus detalhes
+        maplist(exibir_treino, Treinos)
+    % Se não houver a chave "treinos"
+    ;   format("Não há informações de treinos.~n")
+    ).
+
+% Predicado para exibir os detalhes de um treino
+exibir_treino(Treino) :-
+    % Obtém o nome do treino
+    format("\n=> TIPO DE TREINO: ~w~n", [Treino.tipo]),
+    exibe_exercicios(Treino.exercicios).
+
+exibe_exercicios([Exercicio|Resto]):-
+    write('   Exercicios: '), write(Exercicio),
+    exibe_exercicios_aux(Resto).
+    
+exibe_exercicios_aux([]):- write('\n').
+exibe_exercicios_aux([Exercicio|Resto]):-
+    write('\n               '), write(Exercicio),
+    exibe_exercicios_aux(Resto).
 
