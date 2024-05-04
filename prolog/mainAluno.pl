@@ -1,15 +1,15 @@
 :- module(mainAluno, [login_aluno/0, menu_aluno/1]).
 :- use_module(aluno).
 :- use_module(aulaService, [listar_todas_aulas/1, aula_existe/1]).
-:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1,carregar_e_exibir_treinos/1]).
+:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1,carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0,aluno_existe/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 :- use_module(library(process)).
 :- use_module(library(smtp)).
 :- use_module(pagamento).
-
 :- use_module(mainAluno, [menu_aluno/1]).
+:- use_module('mainPrincipal', [main/0]).
 
 login_aluno :- 
     writeln('\n\n==============LOGIN / ALUNO================='),
@@ -58,6 +58,7 @@ menu_aluno(Aluno):-
     writeln('    [6] Realizar Pagamento                  '),
     writeln('    [7] Recarga de saldo                    '),
     writeln('    [8] Consultar avaliacao fisica          '),
+    writeln('    [9] Sair                                '),
     writeln('                                           '),
     writeln('    > Digite a opcao:                       '),
     writeln(' -----------------------------------------'),
@@ -70,21 +71,30 @@ menu_aluno(Aluno):-
      Opcao = "6"-> realiza_pagamento(Aluno);
      Opcao = "7" -> realiza_recarga(Aluno);
      Opcao = "8" -> consulta_avaliacao_fisica(Aluno);
+     Opcao = "9" -> write('\n\n'), main;
      writeln('Opcao invalida!'),
      menu_aluno(Aluno)).
     
 treinos(Aluno):-
-    write('\n\n---------- MEUS TREINOS ---------\n'),
+    write('\n\n------------- MEUS TREINOS -------------\n'),
     carregar_e_exibir_treinos(Aluno),
-    write('\n\n[0] Voltar     [1] Solicitar treino\n:'),
+    write('\n[0] Voltar     [1] Solicitar treino\n:'),
     read_line_to_string(user_input, Opcao),
     (Opcao = "0"-> menu_aluno(Aluno);
-    treinos(ALuno)).
+    Opcao = "1" -> 
+        write('\n> Tipo de treino: '),
+        read_line_to_string(user_input, TipoTreino),
+        adiciona_solicitacao(Aluno.matricula, TipoTreino),
+        writeln('\e[32m> Treino solicitado com sucesso.\e[0m'),
+        sleep(1.5),
+        treinos(Aluno)
+    ;
+    treinos(Aluno)).
 
 
 
 consulta_avaliacao_fisica(Aluno):-
-    write('\n\n--------AVALIACAO FISICA--------'),
+    write('\n\n-----------AVALIACAO FISICA-----------'),
     exibe_avaliacao_aluno(Aluno),
     write('\n\n [0] Voltar\n:'),
     read_line_to_string(user_input, Opcao),
@@ -93,7 +103,7 @@ consulta_avaliacao_fisica(Aluno):-
 
 
 realiza_recarga(Aluno):-
-    write('\n\n--------- RECARGA --------'),
+    write('\n\n----------- RECARGA ----------'),
     write('\n\n> Valor da recarga: '),
     read_line_to_string(user_input, Recarga),
     atom_number(Recarga, RecargaNumber),
@@ -248,7 +258,7 @@ inscricao_aula(Aluno):-
     aulas_coletivas(Aluno)).
     
 dados_aluno(Aluno):-
-    write('\n---------'), format("~s", [Aluno.nomeAluno]), write('---------\n\n'),
+    write('\n------------'), format("~s", [Aluno.nomeAluno]), write('------------\n\n'),
     write('CPF: '), format("~s~n", [Aluno.cpfAluno]),
     write('Endereco: '), format("~s~n", [Aluno.enderecoAluno]),
     write('Contato: '), format("~s~n", [Aluno.contatoAluno]),
@@ -368,3 +378,5 @@ to_lower_case(String, LowerCaseString) :-
 
 to_upper_case(String, UpperCaseString) :-
     string_upper(String, UpperCaseString).
+
+

@@ -1,4 +1,4 @@
-:- module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1, carregar_e_exibir_treinos/1]).
+:- module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1, carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0, aluno_existe/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
@@ -21,7 +21,6 @@ exibe_avaliacao_aluno(Aluno):-
     write('\n\n- Voce ainda nao realizou nenhuma avaliacao fisica.')
         ).
     
-
 
 atualizaAlunoPelaMat(Matricula, CampoDeAtualizacao, NovoValor):-
     atom_concat('BD/aluno/', Matricula, Temp),
@@ -81,15 +80,105 @@ exibir_treinos(Dict) :-
 % Predicado para exibir os detalhes de um treino
 exibir_treino(Treino) :-
     % Obtém o nome do treino
-    format("\n=> TIPO DE TREINO: ~w~n", [Treino.tipo]),
-    exibe_exercicios(Treino.exercicios).
+    format("\n                ~w~n", [Treino.tipo]),
+    write('    ============================='),
+    exibe_exercicios(Treino.exercicios),
+    write('\n').
 
 exibe_exercicios([Exercicio|Resto]):-
-    write('   Exercicios: '), write(Exercicio),
+    write('\n      '), write(Exercicio),
     exibe_exercicios_aux(Resto).
     
 exibe_exercicios_aux([]):- write('\n').
 exibe_exercicios_aux([Exercicio|Resto]):-
-    write('\n               '), write(Exercicio),
+    write('\n      '), write(Exercicio),
     exibe_exercicios_aux(Resto).
 
+adiciona_solicitacao(Matricula,TipoTreino):-
+    open('BD/solicitacoes/solicitacoes.json', read, ReadStream),
+    json_read_dict(ReadStream, Dict),
+    close(ReadStream),
+    adicionar_solicitacao_dict(Dict, Matricula, TipoTreino, NovoDict),
+    open('BD/solicitacoes/solicitacoes.json', write, WriteStream),
+    json_write_dict(WriteStream, NovoDict),
+    close(WriteStream).
+
+adicionar_solicitacao_dict(Dict, Matricula,TipoTreino, NovoDict):-
+    (   get_dict(solicitacoes, Dict, Solicitacoes) ->
+        NovasSolicitacoes = [json([matricula_aluno=Matricula, tipo_treino=TipoTreino]) | Solicitacoes]
+    ;   NovasSolicitacoes = [json([matricula_aluno=Matricula, tipo_treino=TipoTreino])]
+    ),
+    put_dict(solicitacoes, Dict, NovasSolicitacoes, NovoDict).
+
+to_lower_case_(String, LowerCaseString) :-
+    string_lower(String, LowerCaseString).
+
+criar_aluno:-
+    writeln('\n----------- CADASTRO / ALUNO -----------'),
+    write('\nNome do aluno: '),
+    read_line_to_string(user_input,NovoNome),
+    is_null(NovoNome, 'Nome'),
+    write('\nCPF: '),
+    read_line_to_string(user_input,NovoCpf),
+    is_null(NovoCpf, 'Cpf'),
+    write('\nEndereco do aluno: '),
+    read_line_to_string(user_input,NovoEndereco),
+    is_null(NovoEndereco, 'endereco'),
+    write('\nContato do aluno: '),
+    read_line_to_string(user_input,NovoContato),
+    write('\nPlano escolhido: '),
+    write('\n\n[L] LIGHT    [G] GOLD    [P] PREMIUM\n:'),
+    read_line_to_string(user_input,NovoPlano),
+    to_lower_case_(NovoPlano, PlanoLower),
+    (PlanoLower= "l" -> PlanoAluno = "light";
+    PlanoLower = "g" -> PlanoAluno = "gold";
+    PlanoLower = "p" -> PlanoAluno= "premium";
+    writeln('> Opcao invalida.'),
+    sleep(1.5),
+    criar_aluno),
+    gerar_matricula_unica(Matricula),
+    write('\nMatricula:'), write(Matricula),
+    write('\nNova senha de acesso do aluno: '),
+    read_line_to_string(user_input,NovaSenha),
+    is_null(NovaSenha, 'acesso'),
+    write('\nRecarga de saldo inicial: '),
+    read_line_to_string(user_input,NovoSaldo),
+    NovoAluno = aluno{
+            matricula: Matricula,
+            nomeAluno: NovoNome,
+            cpfAluno: NovoCpf,
+            enderecoAluno: NovoEndereco,
+            contatoAluno: NovoContato,
+            planoAluno: PlanoAluno,
+            treinos: [],
+            emDia: "false",
+            senhaAluno: NovaSenha,
+            aulasAluno: [],
+            saldo: NovoSaldo
+    },
+    adiciona_aluno(NovoAluno).
+
+
+adiciona_aluno(Aluno):-
+    Matricula = Aluno.matricula,
+    atom_concat('BD/aluno/', Matricula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    open(Arquivo, write, StreamWrite),
+    json_write(StreamWrite, Aluno),
+    close(StreamWrite).
+is_null(String, Campo):-
+    (String = "" -> write("\n> O "), write(Campo), writeln(' nao pode estar em branco.'), sleep(1.5), criar_aluno ;
+    true).
+gerar_matricula_unica(Matricula) :-
+    repeat, % repete indefinidamente
+    gerar_matricula(Matricula), 
+    \+ aluno_existe(Matricula). 
+
+gerar_matricula(Matricula) :-
+    between(1, 999, Numero), % Gera um número entre 1 e 999
+    format(string(Matricula), '~|~`0t~d~3+', [Numero]).
+
+aluno_existe(Matricula):-
+    atom_concat('BD/aluno/',Matricula,Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    exists_file(Arquivo).
