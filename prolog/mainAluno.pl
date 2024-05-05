@@ -197,7 +197,9 @@ aulas_coletivas(Aluno):-
      ).
 
 aulas_aluno(Aluno):-
-    write('\n\n------------ MINHAS AULAS ----------\n\n'),
+    atom_concat('BD/aluno/', Aluno.matricula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    write('\n\n\n------------ MINHAS AULAS ----------\n\n'),
     get_dict(aulasAluno, Aluno, Aulas),
     exibir_lista(Aulas),
     write('\n[0] Voltar      [1] Excluir aula\n:'),
@@ -213,9 +215,14 @@ aulas_aluno(Aluno):-
         aulas_aluno(Aluno)),
         to_lower_case(AulaExc, AulaExcLower),
         to_upper_case(AulaExc, AulaExcUpper),
-        atualizaAlunoPelaMat(Aluno.matricula, 13, AulaExcLower),
+        get_dict(aulasAluno, Aluno, AulasAtuais),
+        delete(AulasAtuais, AulaExcLower, NovasAulas),
+        AlunoAtualizado = Aluno.put(aulasAluno,NovasAulas),
+        open(Arquivo, write, WriteStream), 
+        json_write_dict(WriteStream, AlunoAtualizado),
+        close(WriteStream),
         sleep(2),
-        aulas_aluno(Aluno)
+        aulas_aluno(AlunoAtualizado)
     ).
 
 esta_incrito([], _):-
@@ -248,6 +255,9 @@ inscricao_aula(Aluno):-
         sleep(2),
         aulas_coletivas(Aluno);
     true),
+    plano_incluido(Aluno, NovaAulaLower,Existe),
+    (Existe = 1 -> true ; 
+        writeln('> Aula nao compativel com o plano atual.'),sleep(2), aulas_coletivas(Aluno)),
     (aula_existe(NovaAulaUpper) -> 
         write(NovaAulaUpper), 
         writeln(' adicionada na sua agenda de aulas'),
@@ -257,7 +267,21 @@ inscricao_aula(Aluno):-
     writeln('\n Aula nao encontrada!'),
     sleep(2),
     aulas_coletivas(Aluno)).
-    
+
+plano_incluido(Aluno, NovaAula, Existe):-
+    atom_concat('BD/aula/', NovaAula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    open(Arquivo, read, StreamRead),
+    json_read_dict(StreamRead, Aula),
+    close(StreamRead),
+    verifica_planos(Aluno.planoAluno, Aula.planos, Existe).
+
+verifica_planos(_, [],_).
+verifica_planos(PlanoAluno, [PlanoPermitido|Resto],Existe):-
+    (PlanoPermitido = PlanoAluno-> Existe is 1
+    ; Existe is 0,
+      verifica_planos(PlanoAluno,Resto,Existe)).
+
 dados_aluno(Aluno):-
     write('\n------------'), format("~s", [Aluno.nomeAluno]), write('------------\n\n'),
     write('CPF: '), format("~s~n", [Aluno.cpfAluno]),
