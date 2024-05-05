@@ -1,7 +1,7 @@
 :- module(mainAluno, [login_aluno/0, menu_aluno/1]).
 :- use_module(aluno).
 :- use_module(aulaService, [listar_todas_aulas/1, aula_existe/1]).
-:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1,carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0,aluno_existe/1]).
+:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1,carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0,aluno_existe/1,listar_alunos/1,qnt_alunos_premium/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
@@ -71,10 +71,11 @@ menu_aluno(Aluno):-
      Opcao = "6"-> realiza_pagamento(Aluno);
      Opcao = "7" -> realiza_recarga(Aluno);
      Opcao = "8" -> consulta_avaliacao_fisica(Aluno);
-     Opcao = "9" -> write('\n\n'), main;
+     Opcao = "9" -> writeln('Saindo...\n\n'), sleep(2), main;
      writeln('Opcao invalida!'),
      menu_aluno(Aluno)).
-    
+
+
 treinos(Aluno):-
     write('\n\n------------- MEUS TREINOS -------------\n'),
     carregar_e_exibir_treinos(Aluno),

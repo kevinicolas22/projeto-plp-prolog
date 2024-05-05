@@ -41,7 +41,6 @@ main :-
         )
 
     ).
-
        
 loginMembro(TipoUsuario):-
     

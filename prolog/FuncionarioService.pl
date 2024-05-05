@@ -241,3 +241,29 @@ all_positive(Number) :-
 verifica_nao_vazio(String) :-
     string_length(String, Length),
     Length > 0.
+
+
+
+exibir_solicitacoes :-
+    open('BD/solicitacoes/solicitacoes.json', read, Stream), 
+    json_read_dict(Stream, Solicitacao), 
+    close(Stream),
+    carregar_e_exibir_solicitacoes(Solicitacao).
+
+carregar_e_exibir_solicitacoes(Solicitacao) :-
+    exibir_solicitacoes(Solicitacao).
+
+exibir_solicitacoes(Dict) :-
+
+    (   get_dict(solicitacoes, Dict, Solicitacoes),
+        % Itera sobre cada treino e exibe seus detalhes
+        maplist(exibir_solicitacao, Solicitacoes)
+
+    ;   format("Não há informações de solicitacoes.~n")
+    ).
+
+exibir_solicitacao(Solicitacao) :-
+    format("\n =>Aluno: ~w~n", [Solicitacao.nome_aluno]),
+    format("   Matricula: ~w~n", [Solicitacao.matricula_aluno]),
+    format("   Tipo de treino: ~w~n", [Solicitacao.tipo_treino]),
+    write('\n').

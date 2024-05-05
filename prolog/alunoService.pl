@@ -1,4 +1,4 @@
-:- module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1, carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0, aluno_existe/1]).
+:- module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1, carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0, aluno_existe/1,listar_alunos/1,qnt_alunos_premium/1,qnt_alunos_gold/1,qnt_alunos_light/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
@@ -157,7 +157,55 @@ criar_aluno:-
             saldo: NovoSaldo
     },
     adiciona_aluno(NovoAluno).
+    
+qnt_alunos_premium(Path) :-
+    directory_files(Path, Arquivos),
+    processar_aluno_json(Arquivos, Path, "premium",0). 
 
+qnt_alunos_gold(Path) :-
+    directory_files(Path, Arquivos),
+    processar_aluno_json(Arquivos, Path, "gold",0). 
+
+qnt_alunos_light(Path) :-
+    directory_files(Path, Arquivos),
+    processar_aluno_json(Arquivos, Path, "light",0). 
+
+processar_aluno_json([], _,_,Quantidade):-
+    write(Quantidade).
+processar_aluno_json([Arquivo|Arquivos], Diretorio, Plano, Quantidade) :-
+    atomic_list_concat([Diretorio, '/', Arquivo], Caminho),
+    ( string_concat(_, '.json', Arquivo)  ->  
+        open(Caminho, read, Stream), 
+        json_read_dict(Stream, Aluno),
+        PlanoAluno = Aluno.planoAluno,
+        close(Stream),
+        (PlanoAluno= Plano ->
+            NewQuantidade is Quantidade+1,
+            processar_aluno_json(Arquivos, Diretorio, Plano, NewQuantidade);
+            processar_aluno_json(Arquivos, Diretorio, Plano, Quantidade)
+        );
+        processar_aluno_json(Arquivos, Diretorio, Plano, Quantidade)
+    ).
+
+
+listar_alunos(Path) :-
+    directory_files(Path, Arquivos), % Obtém todos os arquivos no diretório 'aluno'
+    processar_arquivos_json(Arquivos, Path). % Lê cada arquivo de aluno e extrai as informações
+
+processar_arquivos_json([], _).
+processar_arquivos_json([Arquivo|Arquivos], Diretorio) :-
+    atomic_list_concat([Diretorio, '/', Arquivo], Caminho),
+    (   string_concat(_, '.json', Arquivo)
+    ->  ler_aluno(Caminho),
+        processar_arquivos_json(Arquivos, Diretorio)
+    ;   processar_arquivos_json(Arquivos, Diretorio)
+    ).
+ler_aluno(NomeArquivo) :-
+    open(NomeArquivo, read, Stream), 
+    json_read_dict(Stream, Aluno), 
+    write('\n-Nome: '),writeln(Aluno.nomeAluno),
+    write(' Matricula: '), writeln(Aluno.matricula),
+    close(Stream). % Fecha o arquivo
 
 adiciona_aluno(Aluno):-
     Matricula = Aluno.matricula,

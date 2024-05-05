@@ -1,7 +1,7 @@
 {
   "solicitacoes": [
-    {"matricula_aluno":"001", "tipo_treino":"Peito"},
-    {"matricula_aluno":"001", "tipo_treino":"Perna"},
-    {"matricula_aluno":"001", "tipo_treino":"Perna"}
+    {"matricula_aluno":"001", "nome_aluno": "joao","tipo_treino":"Peito"},
+    {"matricula_aluno":"001", "nome_aluno": "joao", "tipo_treino":"Perna"},
+    {"matricula_aluno":"001", "nome_aluno": "joao","tipo_treino":"Perna"}
   ]
 }
