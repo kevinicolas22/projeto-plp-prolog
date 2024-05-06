@@ -2,20 +2,25 @@
 
 CODIGOS PARA RODAR CADA CLASSE:
 
+(Classe geral)
+cd prolog
 swipl -q -f mainPrincipal.pl 
-
-
-
+------------------------------------
+(Classe específica de gestor)
+cd prolog
 swipl -q -f mainGestor.pl
-
 menu_gestor(MenuPrincipal).
-
-
-
+------------------------------------
+(Classe específica de funcionario)
+cd prolog
 swipl -q -f mainFuncionario.pl 
-
 menu_funcionario(MenuPrincipal).
-
+------------------------------------
+(Classe específica de aluno)
+cd prolog
+swipl -q -f mainAluno.pl
+menu_aluno(Aluno)
+-----------------------------------
 
 
 O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por gestores, funcionários e alunos. O sistema contém funcionalidades específicas para cada usuário visando modularizar o sistema, atribuindo cada funcionalidade a entidade específica.
