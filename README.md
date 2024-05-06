@@ -29,35 +29,32 @@ Clone o projeto em sua IDE
 ```
 Verifique se está na branch 'main', se não tiver insira : git checkout main
 
-Entre no diretório do projeto
+-> Entre no diretório do projeto
 
 ```bash
   cd prolog
 ```
 
-Para rodar o menu principal
+-> Para rodar o menu principal
 
 ```bash
   swipl -q -f mainPrincipal.pl
 ```
-Para rodar apenas gestor
-
+-> Para rodar apenas gestor
 ```bash
   swipl -q -f mainGestor.pl
 ```
 ```bash
   menu_gestor(MenuPrincipal).
 ```
-Para rodar apenas funcionario
-
+-> Para rodar apenas funcionario
 ```bash
   swipl -q -f mainFuncionario.pl 
 ```
 ```bash
   menu_funcionario.
 ```
-Para rodar apenas aluno
-
+-> Para rodar apenas aluno
 ```bash
   swipl -q -f mainAluno.pl
 ```
