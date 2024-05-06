@@ -8,7 +8,8 @@
 :- use_module(gestor).
 :- use_module(funcionario).
 :- use_module(library(ansi_term)).
-:- use_module('GestorService').
+:- use_module('GestorService',[
+        gerar_relatorio/0]).
 :- use_module('MaquinaService').
 :- use_module('funcionarioService', [
         adicionar_funcionario/1, 
@@ -389,7 +390,7 @@ consultar_maquina_opcao(MenuPrincipal) :-
     (   Opcao = "1" ->
             folha_pagamento_func(MenuPrincipal)
     ;   Opcao = "2" ->
-            renda_gastos(MenuPrincipal)
+            renda(MenuPrincipal)
     ;   Opcao = "3" ->
             menu_gestor(MenuPrincipal)
     ;
@@ -410,7 +411,17 @@ consultar_maquina_opcao(MenuPrincipal) :-
         ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
                 folha_pagamento_func(MenuPrincipal)
         ).
-
+renda(MenuPrincipal) :-
+        writeln('Gerando relatorio...\n'),
+        sleep(2),
+        gerar_relatorio,
+        writeln('\n\n [0] Voltar'),
+        read_line_to_string(user_input, Op),
+        (   Op = "0" ->
+                menu_financeiro_g(MenuPrincipal)
+        ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+                renda(MenuPrincipal)
+        ).
 % FUNCIONARIO
 
 :- use_module(library(system)).
