@@ -202,10 +202,23 @@ processar_arquivos_json([Arquivo|Arquivos], Diretorio) :-
     ).
 ler_aluno(NomeArquivo) :-
     open(NomeArquivo, read, Stream), 
-    json_read_dict(Stream, Aluno), 
-    write('\n-Nome: '),writeln(Aluno.nomeAluno),
-    write(' Matricula: '), writeln(Aluno.matricula),
-    close(Stream). % Fecha o arquivo
+    json_read_dict(Stream, Aluno),
+    close(Stream),
+    format("Matricula: ~s~n", [Aluno.matricula]),
+    format("Nome: ~s~n", [Aluno.nomeAluno]),
+    writeln("Aula(s): "),
+    exibir_aulas_aluno(Aluno),
+    writeln(''),
+    writeln("Treino(s): "),
+    carregar_e_exibir_treinos(Aluno),
+    writeln('____________________________________').
+
+exibir_aulas_aluno(Dict) :-
+    (   get_dict(aulasAluno, Dict, Aulas),
+        writeln('      ============AULAS============'),
+        exibe_exercicios(Aulas)
+    ;   writeln('Nao ha informações sobre as aulas do aluno.')
+    ).
 
 adiciona_aluno(Aluno):-
     Matricula = Aluno.matricula,

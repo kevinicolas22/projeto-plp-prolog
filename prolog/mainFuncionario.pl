@@ -16,6 +16,7 @@
 :- use_module(library(pure_input)).
 :- use_module(library(random)).
 :- use_module(library(apply)).
+:- use_module(library(date)).
 
 :- use_module('mainPrincipal', [main/0]).
 
@@ -37,6 +38,12 @@
     remover_avaliacao_fisica_por_cpf/1,
     atualizarAvaliacaoPorCPF/3,
     calcular_e_imprimir_imc/1
+]).
+
+:- use_module('alunoService', [
+        criar_aluno/0,
+        listar_alunos/1,
+        aluno_existe/1
 ]).
 
 menu_funcionario :-
@@ -64,11 +71,11 @@ escolher_opcao(Opcao) :-
     ;   Opcao = "2" ->
             funcionario_cria_treino(MenuPrincipal)
     ;   Opcao = "3" ->
-            listar_alunos(MenuPrincipal)
+            listar_todos_alunos
     ;   Opcao = "4" ->
             menu_aulas
     ;   Opcao = "5" ->
-            liberar_acesso_aluno(MenuPrincipal)
+            liberar_acesso_aluno
     ;   Opcao = "6" ->
             menu_avaliacao_fisica(MenuPrincipal)
     ;   Opcao = "7" ->
@@ -77,6 +84,68 @@ escolher_opcao(Opcao) :-
             menu_funcionario
     ).
 
+% Liberar acesso do aluno
+
+current_hour_in_24h_format(CurrentHour) :-
+    get_time(Stamp),
+    stamp_date_time(Stamp, DateTime, 'local'),
+    date_time_value(hour, DateTime, Hour),
+    format(atom(CurrentHour), '~|~`0t~d~2+', [Hour]).
+
+% Formatar data e hora
+format_date_time(DateTime, 'D/M/YYYY HH:MM:SS', DateTimeOptions) :-
+    format_time(string(DateTime), DateTimeOptions).
+
+% Formatar apenas a hora no formato 24 horas (HH)
+format_hour(Hour, 'HH', DateTimeOptions) :-
+    format_time(string(Hour), DateTimeOptions).
+
+
+liberar_acesso_aluno :-
+        writeln("Para liberar o acesso do ALUNO, informe a matrícula: (0 para voltar)"),
+        repeat,
+        read_line_to_string(user_input, Mat),
+        (Mat = "0" ->
+                menu_funcionario
+        ;
+                (aluno_existe(Mat)->
+                        current_hour_in_24h_format(Hora),
+                        write("Horario Atual: "), writeln(Hora),
+                        acesso_liberado(Mat, Hora, R),
+                        (R =:= 1 ->
+                                writeln('\e[92mACESSO AUTORIZADO\e[0m\n'),
+                                sleep(2),
+                                menu_funcionario
+                        ;
+                                writeln('\e[91mFORA DO HORARIO\e[0m\n'),
+                                sleep(2),
+                                menu_funcionario
+                        )
+                ;
+                        writeln("Matricula Invalida, digite novamente "),
+                        fail
+                )
+        ).
+
+        
+        
+
+
+
+% Lista todos os Alunos
+
+listar_todos_alunos :-
+    writeln('------------ALUNOS------------'),
+    sleep(2),
+    listar_alunos('BD/aluno'),
+    writeln('\n\n [0] Voltar'),
+    repeat,
+    read_line_to_string(user_input, Op),
+    (   Op = "0" ->
+            menu_funcionario
+    ;   writeln('Opcao invalida. Por favor, escolha novamente.'),
+        fail
+    ).
 
 % Avaliacao Fisica
 
@@ -343,3 +412,4 @@ alterar_aula :-
                                 alterar_aula
                         )
         ).
+

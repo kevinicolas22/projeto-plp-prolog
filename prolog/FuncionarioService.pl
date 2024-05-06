@@ -6,13 +6,18 @@
     remover_funcionario/1,
     listar_todos_funcionarios/1,
     atualizarFuncionarioPorCPF/3,
-    criar_login/1
+    criar_login/1,
+    acesso_liberado/3
 ]).
 
 :- use_module(util).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
+
+:- use_module('alunoService', [
+        aluno_existe/1
+]).
 
 :- use_module(mainGestor, [menu_funcionario_g/0]).
 
@@ -220,6 +225,63 @@ atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
         )
     ;   writeln("Funcionario nao existe!")
     ).
+
+% Liberar acesso
+
+acesso_liberado(Matricula, Hora, R):-
+
+    ler_aluno_retorna_aluno(Matricula, Aluno),
+
+    (plano_existe(Aluno.planoAluno) -> 
+        
+        ler_e_retora_plano(Aluno.planoAluno, Plano),
+
+        atom_number(Hora, HoraInt),
+        atom_number(Plano.horaEntradaMaxima, HoraMaximaInt),
+        atom_number(Plano.horaEntradaMinima, HoraMinimaInt),
+
+
+        ((HoraInt >= HoraMinimaInt) , (HoraInt =< HoraMaximaInt) ->
+            R = 1
+        ;
+            R = 0
+        )
+    ;
+
+        writeln("Plano invalido!")
+        
+    
+    ).
+
+    
+ler_aluno_retorna_aluno(Mat, Aluno):-
+    (aluno_existe(Mat) ->
+        atom_concat('BD/aluno/', Mat, Temp),
+        atom_concat(Temp, '.json', Arquivo),
+        open(Arquivo, read, Stream), 
+        json_read_dict(Stream, Aluno),
+        close(Stream)
+    ;
+        write("Aluno não encontrado")
+    ).
+
+ler_e_retora_plano(PlanoNome, Plano):-
+    (plano_existe(PlanoNome) ->
+        atom_concat('BD/plano/', PlanoNome, Temp),
+        atom_concat(Temp, '.json', Arquivo),
+        open(Arquivo, read, Stream), 
+        json_read_dict(Stream, Plano),
+        close(Stream)
+    ;
+        write("Plano não encontrado")
+    ).
+
+    
+
+plano_existe(Plano) :-
+    atom_concat('BD/plano/', Plano, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    exists_file(Arquivo).
 
 
 % VALIDAcÕES
