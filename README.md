@@ -1,28 +1,5 @@
 # CODEFIT
 
-CODIGOS PARA RODAR CADA CLASSE:
-
-(Classe geral)
-cd prolog
-swipl -q -f mainPrincipal.pl 
-------------------------------------
-(Classe específica de gestor)
-cd prolog
-swipl -q -f mainGestor.pl
-menu_gestor(MenuPrincipal).
-------------------------------------
-(Classe específica de funcionario)
-cd prolog
-swipl -q -f mainFuncionario.pl 
-menu_funcionario(MenuPrincipal).
-------------------------------------
-(Classe específica de aluno)
-cd prolog
-swipl -q -f mainAluno.pl
-menu_aluno(Aluno)
------------------------------------
-
-
 O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por gestores, funcionários e alunos. O sistema contém funcionalidades específicas para cada usuário visando modularizar o sistema, atribuindo cada funcionalidade a entidade específica.
 
 
@@ -31,10 +8,56 @@ O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por
 
 - Conheça todas as funcionalidades disponíveis acessando a [documentação oficial do projeto](https://docs.google.com/document/d/1bcGVitOdJ7p6JWy1ikgXhyCYMsLPlYAsG7g90WwrG-o/edit#heading=h.phrzmz7sb5x0). 
 
-- Vídeo de apresentação do CODEFIT:[Sistema CODEFIT](https://youtu.be/QI1rMvbUfJw?si=pbMADGmhkyflZ2QQ).
+- Vídeo de apresentação do CODEFIT:[Sistema CODEFIT]().
 
 
 ## Rodando localmente
 
 ### Cuidado!
-É preciso que você tenha o 
+É preciso que você tenha o SWI Prolog instalado e atualizado em sua máquina.
+Caso não tenha o swi, esse vídeo irá lhe ensinar [instalação swi](https://www.youtube.com/watch?v=YzDpQOk2qvQ)...
+
+Tudo pronto? Vamos em frente!
+
+##Para rodar as classes, siga as instruções abaixo
+
+Clone o projeto em sua IDE
+
+```bash
+  git clone [https://github.com/kevinicolas22/projeto-plp-prolog.git]
+```
+Verifique se está na branch 'main', se não tiver insira : git checkout main
+
+Entre no diretório do projeto
+
+```bash
+  cd prolog
+```
+
+Para rodar o menu principal
+
+```bash
+  swipl -q -f mainPrincipal.pl
+```
+Para rodar apenas gestor
+
+```bash
+  swipl -q -f mainGestor.pl
+  menu_gestor(MenuPrincipal).
+```
+
+Para rodar apenas funcionario
+
+```bash
+  swipl -q -f mainFuncionario.pl 
+  menu_funcionario.
+```
+
+Para rodar apenas aluno
+
+```bash
+  swipl -q -f mainAluno.pl
+  login_aluno.
+```
+
+
