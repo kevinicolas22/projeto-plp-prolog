@@ -15,7 +15,8 @@ O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por
 
 ### Cuidado!
 É preciso que você tenha o SWI Prolog instalado e atualizado em sua máquina.
-Caso não tenha o swi, esse vídeo irá lhe ensinar [instalação swi](https://www.youtube.com/watch?v=YzDpQOk2qvQ)...
+Caso não tenha o swi, 
+  esse vídeo irá lhe ensinar detalhadamente [instalação swi](https://www.youtube.com/watch?v=YzDpQOk2qvQ).
 
 Tudo pronto? Vamos em frente!
 
@@ -43,21 +44,24 @@ Para rodar apenas gestor
 
 ```bash
   swipl -q -f mainGestor.pl
+```
+```bash
   menu_gestor(MenuPrincipal).
 ```
-
 Para rodar apenas funcionario
 
 ```bash
   swipl -q -f mainFuncionario.pl 
+```
+```bash
   menu_funcionario.
 ```
-
 Para rodar apenas aluno
 
 ```bash
   swipl -q -f mainAluno.pl
+```
+```bash
   login_aluno.
 ```
-
 
