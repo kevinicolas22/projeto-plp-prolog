@@ -5,9 +5,9 @@
   "emDia":"true",
   "enderecoAluno":"Rua prefeito Francisco camilo ,160",
   "matricula":"001",
-  "nomeAluno":"Joao Pedro",
+  "nomeAluno":"Kevin",
   "planoAluno":"light",
-  "saldo":"255.0",
+  "saldo":"65.0",
   "senhaAluno":"jp14",
   "treinos": [
     {
@@ -17,6 +17,7 @@
     {
       "exercicios": ["Corrida", "Abdominais", "Flexoes" ],
       "tipo":"Costas"
-    }
+    },
+    {"exercicios": ["Supino", "Triceps" ], "tipo":"Peito"}
   ]
 }

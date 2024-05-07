@@ -359,7 +359,7 @@ altera_plano(Aluno):-
     exibe_plano(PlanoLight),
     exibe_plano(PlanoGold),
     exibe_plano(PlanoPremium),
-    write('\n> Novo plano ([0] para voltar): '),
+    write('\n> Digite o nome do novo plano ([0] para voltar): '),
     read_line_to_string(user_input,NovoPlano),
     to_lower_case(NovoPlano, NovoPlanoLower),
      ( NovoPlano= "0" -> menu_aluno(Aluno) 

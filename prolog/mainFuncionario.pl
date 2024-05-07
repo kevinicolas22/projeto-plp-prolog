@@ -84,6 +84,83 @@ escolher_opcao(Opcao) :-
             menu_funcionario
     ).
 
+funcionario_cria_treino(MenuPrincipal):-
+        write('\n\n------------ TREINOS -------------\n'),
+        write('Solicitacoes: \n'),
+        exibir_solicitacoes,
+        write('\n[0] Voltar       [1] Adicionar treino'),
+        read_line_to_string(user_input, Opcao),
+        (Opcao="0"-> menu_funcionario;
+        Opcao="1"-> add_treino(MenuPrincipal) ).
+
+add_treino(MenuPrincipal):-
+        write('\n> Matricula do aluno solicitante: '),
+        read_line_to_string(user_input, Matricula),
+        write('\n> Nome do treino solicitado: '),
+        read_line_to_string(user_input, NomeTreino),
+        write('\n Exercicios (! para parar): \n'),
+        ler_exercicios(ListaExercicios),
+        Treino = _{tipo: NomeTreino, exercicios: ListaExercicios},
+        atom_concat('BD/aluno/', Matricula, Temp),
+        atom_concat(Temp, '.json', ArquivoAluno),
+        adicionar_treino(Treino, ArquivoAluno),
+        ArquivoSolicitacoes = 'BD/solicitacoes/solicitacoes.json',
+        deletar_solicitacao(Matricula, NomeTreino,ArquivoSolicitacoes),
+        writeln("> Treino atribuido com sucesso."),
+        sleep(2),
+        funcionario_cria_treino(MenuPrincipal).
+
+carregar_json(Arquivo, JSON) :-
+    open(Arquivo, read, Stream),
+    json_read_dict(Stream, JSON),
+    close(Stream).
+
+
+deletar_solicitacao(Matricula, TipoTreino, ArquivoSolicitacoes) :-
+    carregar_json(ArquivoSolicitacoes, JSON),
+    verifica_solicitacao(JSON.solicitacoes, Matricula,TipoTreino,[],NovasSolicitacoes),
+    ListaAtualizada = JSON.put(solicitacoes, NovasSolicitacoes),
+    open(ArquivoSolicitacoes, write, WriteStream), 
+    json_write_dict(WriteStream, ListaAtualizada),
+    close(WriteStream).
+
+
+verifica_solicitacao([],_,_,ListaAux,NovasSolicitacoes):-
+        ListaAux = NovasSolicitacoes.
+
+verifica_solicitacao([Solicitacao|Resto], Matricula, TipoTreino,ListaAux, NovasSolicitacoes):-
+        ((Solicitacao.matricula_aluno == Matricula) ,(Solicitacao.tipo_treino == TipoTreino)->
+                verifica_solicitacao(Resto,Matricula,TipoTreino,ListaAux,NovasSolicitacoes); 
+                append(ListaAux, [Solicitacao], NovaLista),
+                verifica_solicitacao(Resto, Matricula,TipoTreino,NovaLista,NovasSolicitacoes)).
+
+adicionar_treino( NovoTreino, Arquivo) :-
+    open(Arquivo, read, StreamRead),
+    json_read_dict(StreamRead, Aluno),
+    close(StreamRead),
+    get_dict(treinos, Aluno, TreinosAtuais),
+    append(TreinosAtuais, [NovoTreino], NovosTreinos),
+    AlunoAtualizado = Aluno.put(treinos,NovosTreinos),
+    salvar_json(Arquivo, AlunoAtualizado).
+
+
+
+salvar_json(Arquivo, JSON) :-
+    open(Arquivo, write, Stream),
+    json_write_dict(Stream, JSON),
+    close(Stream).
+
+
+
+
+ler_exercicios(ListaExercicios) :-
+    write('>'), 
+    read_line_to_codes(user_input, Exercicio),
+    (Exercicio = [48]->ListaExercicios = [];
+        atom_codes(ExercicioAtom, Exercicio),
+        ListaExercicios = [ExercicioAtom | OutrosExercicios],
+        ler_exercicios(OutrosExercicios)
+    ).
 % Liberar acesso do aluno
 
 current_hour_in_24h_format(CurrentHour) :-
