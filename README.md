@@ -8,7 +8,7 @@ O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por
 
 - Conheça todas as funcionalidades disponíveis acessando a [documentação oficial do projeto](https://docs.google.com/document/d/1bcGVitOdJ7p6JWy1ikgXhyCYMsLPlYAsG7g90WwrG-o/edit#heading=h.phrzmz7sb5x0). 
 
-- Vídeo de apresentação do CODEFIT:[Sistema CODEFIT]().
+- Vídeo de apresentação do CODEFIT:[Sistema CODEFIT](https://youtu.be/EZQIBaNyYaw).
 
 
 ## Rodando localmente
