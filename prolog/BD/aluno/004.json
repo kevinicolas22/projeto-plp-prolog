@@ -9,5 +9,5 @@
   "planoAluno":"gold",
   "saldo":"600",
   "senhaAluno":"senha123",
-  "treinos": []
+  "treinos": [ {"exercicios": ["esteira", "pantirrilha" ], "tipo":"perna"} ]
 }

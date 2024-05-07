@@ -98,7 +98,7 @@ add_treino(MenuPrincipal):-
         read_line_to_string(user_input, Matricula),
         write('\n> Nome do treino solicitado: '),
         read_line_to_string(user_input, NomeTreino),
-        write('\n Exercicios (! para parar): \n'),
+        write('\n Exercicios (0 para parar): \n'),
         ler_exercicios(ListaExercicios),
         Treino = _{tipo: NomeTreino, exercicios: ListaExercicios},
         atom_concat('BD/aluno/', Matricula, Temp),
