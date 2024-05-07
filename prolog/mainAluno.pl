@@ -1,14 +1,15 @@
 :- module(mainAluno, [login_aluno/0, menu_aluno/1]).
 :- use_module(aluno).
 :- use_module(aulaService, [listar_todas_aulas/1, aula_existe/1]).
-:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1]).
+:- use_module(alunoService, [atualizaAlunoPelaMat/3,exibe_avaliacao_aluno/1,carregar_e_exibir_treinos/1, adiciona_solicitacao/2, criar_aluno/0,aluno_existe/1,listar_alunos/1,qnt_alunos_premium/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
 :- use_module(library(process)).
 :- use_module(library(smtp)).
-
+:- use_module(pagamento).
 :- use_module(mainAluno, [menu_aluno/1]).
+:- use_module('mainPrincipal', [main/0]).
 
 login_aluno :- 
     writeln('\n\n==============LOGIN / ALUNO================='),
@@ -57,6 +58,7 @@ menu_aluno(Aluno):-
     writeln('    [6] Realizar Pagamento                  '),
     writeln('    [7] Recarga de saldo                    '),
     writeln('    [8] Consultar avaliacao fisica          '),
+    writeln('    [9] Sair                                '),
     writeln('                                           '),
     writeln('    > Digite a opcao:                       '),
     writeln(' -----------------------------------------'),
@@ -65,16 +67,35 @@ menu_aluno(Aluno):-
      Opcao = "2"-> altera_plano(Aluno);
      Opcao = "3"-> dados_aluno(Aluno);
      Opcao = "4"-> aulas_coletivas(Aluno);
+     Opcao = "5"-> treinos(Aluno);
      Opcao = "6"-> realiza_pagamento(Aluno);
      Opcao = "7" -> realiza_recarga(Aluno);
      Opcao = "8" -> consulta_avaliacao_fisica(Aluno);
+     Opcao = "9" -> writeln('Saindo...\n\n'), sleep(2), main;
      writeln('Opcao invalida!'),
      menu_aluno(Aluno)).
 
 
+treinos(Aluno):-
+    write('\n\n------------- MEUS TREINOS -------------\n'),
+    carregar_e_exibir_treinos(Aluno),
+    write('\n[0] Voltar     [1] Solicitar treino\n:'),
+    read_line_to_string(user_input, Opcao),
+    (Opcao = "0"-> menu_aluno(Aluno);
+    Opcao = "1" -> 
+        write('\n> Tipo de treino: '),
+        read_line_to_string(user_input, TipoTreino),
+        adiciona_solicitacao(Aluno.matricula, TipoTreino),
+        writeln('\e[32m> Treino solicitado com sucesso.\e[0m'),
+        sleep(1.5),
+        treinos(Aluno)
+    ;
+    treinos(Aluno)).
+
+
 
 consulta_avaliacao_fisica(Aluno):-
-    write('\n\n--------AVALIACAO FISICA--------'),
+    write('\n\n-----------AVALIACAO FISICA-----------'),
     exibe_avaliacao_aluno(Aluno),
     write('\n\n [0] Voltar\n:'),
     read_line_to_string(user_input, Opcao),
@@ -83,7 +104,7 @@ consulta_avaliacao_fisica(Aluno):-
 
 
 realiza_recarga(Aluno):-
-    write('\n\n--------- RECARGA --------'),
+    write('\n\n----------- RECARGA ----------'),
     write('\n\n> Valor da recarga: '),
     read_line_to_string(user_input, Recarga),
     atom_number(Recarga, RecargaNumber),
@@ -132,11 +153,20 @@ realiza_pagamento(Aluno):-
      realiza_pagamento(Aluno) ;
      writeln('*Processando pagamento...*'),
      sleep(1),
+     adiciona_pagamento(Aluno,Plano),
      enviar_email(Aluno, Plano),
      writeln('\e[32mPagamento realizado.\e[0m'),
      sleep(2),
      atualizaAlunoPelaMat(Aluno.matricula, 14, "true")
      ).
+     
+adiciona_pagamento(Aluno,Plano):-
+    NovoPagamento = pagamento{valor: Plano.valorMensal, plano: Plano.tipo},
+    atom_concat('BD/pagamentos/', Aluno.matricula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    open(Arquivo, write, StreamWrite),
+    json_write(StreamWrite, NovoPagamento),
+    close(StreamWrite).
 
 enviar_email(Aluno, Plano) :-
     smtp_send_mail(
@@ -167,7 +197,9 @@ aulas_coletivas(Aluno):-
      ).
 
 aulas_aluno(Aluno):-
-    write('\n\n------------ MINHAS AULAS ----------\n\n'),
+    atom_concat('BD/aluno/', Aluno.matricula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    write('\n\n\n------------ MINHAS AULAS ----------\n\n'),
     get_dict(aulasAluno, Aluno, Aulas),
     exibir_lista(Aulas),
     write('\n[0] Voltar      [1] Excluir aula\n:'),
@@ -183,9 +215,14 @@ aulas_aluno(Aluno):-
         aulas_aluno(Aluno)),
         to_lower_case(AulaExc, AulaExcLower),
         to_upper_case(AulaExc, AulaExcUpper),
-        atualizaAlunoPelaMat(Aluno.matricula, 13, AulaExcLower),
+        get_dict(aulasAluno, Aluno, AulasAtuais),
+        delete(AulasAtuais, AulaExcLower, NovasAulas),
+        AlunoAtualizado = Aluno.put(aulasAluno,NovasAulas),
+        open(Arquivo, write, WriteStream), 
+        json_write_dict(WriteStream, AlunoAtualizado),
+        close(WriteStream),
         sleep(2),
-        aulas_aluno(Aluno)
+        aulas_aluno(AlunoAtualizado)
     ).
 
 esta_incrito([], _):-
@@ -218,6 +255,9 @@ inscricao_aula(Aluno):-
         sleep(2),
         aulas_coletivas(Aluno);
     true),
+    plano_incluido(Aluno, NovaAulaLower,Existe),
+    (Existe = 1 -> true ; 
+        writeln('> Aula nao compativel com o plano atual.'),sleep(2), aulas_coletivas(Aluno)),
     (aula_existe(NovaAulaUpper) -> 
         write(NovaAulaUpper), 
         writeln(' adicionada na sua agenda de aulas'),
@@ -227,15 +267,29 @@ inscricao_aula(Aluno):-
     writeln('\n Aula nao encontrada!'),
     sleep(2),
     aulas_coletivas(Aluno)).
-    
+
+plano_incluido(Aluno, NovaAula, Existe):-
+    atom_concat('BD/aula/', NovaAula, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    open(Arquivo, read, StreamRead),
+    json_read_dict(StreamRead, Aula),
+    close(StreamRead),
+    verifica_planos(Aluno.planoAluno, Aula.planos, Existe).
+
+verifica_planos(_, [],_).
+verifica_planos(PlanoAluno, [PlanoPermitido|Resto],Existe):-
+    (PlanoPermitido = PlanoAluno-> Existe is 1
+    ; Existe is 0,
+      verifica_planos(PlanoAluno,Resto,Existe)).
+
 dados_aluno(Aluno):-
-    write('\n---------'), format("~s", [Aluno.nomeAluno]), write('---------\n\n'),
+    write('\n------------'), format("~s", [Aluno.nomeAluno]), write('------------\n\n'),
     write('CPF: '), format("~s~n", [Aluno.cpfAluno]),
     write('Endereco: '), format("~s~n", [Aluno.enderecoAluno]),
     write('Contato: '), format("~s~n", [Aluno.contatoAluno]),
     write('Plano: '), format("~s~n", [Aluno.planoAluno]),
     write('Mensalidade: '), 
-    (Aluno.emDia = "true"-> write('\n\e[32mEm dia\e[0m\n');
+    (Aluno.emDia = "true"-> write('\e[32mEm dia\e[0m\n');
     write('\e[31mPendente\e[0m\n')),
 
     write('Matricula: '), format("~s~n", [Aluno.matricula]),
@@ -305,7 +359,7 @@ altera_plano(Aluno):-
     exibe_plano(PlanoLight),
     exibe_plano(PlanoGold),
     exibe_plano(PlanoPremium),
-    write('\n> Novo plano ([0] para voltar): '),
+    write('\n> Digite o nome do novo plano ([0] para voltar): '),
     read_line_to_string(user_input,NovoPlano),
     to_lower_case(NovoPlano, NovoPlanoLower),
      ( NovoPlano= "0" -> menu_aluno(Aluno) 
@@ -349,3 +403,5 @@ to_lower_case(String, LowerCaseString) :-
 
 to_upper_case(String, UpperCaseString) :-
     string_upper(String, UpperCaseString).
+
+

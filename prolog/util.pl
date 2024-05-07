@@ -1,12 +1,11 @@
 
-:- module(util, [delimitar_cpf/2,
- limpar_terminal/0, 
+:- module(util, [delimitar_cpf/2, 
  ler_json/2, 
  deletar_arquivo/1, 
  string_to_atom/2]).
 
 
-:- usemodule(library(process)).
+:- use_module(library(process)).
 :- use_module(library(http/json)).
 
 delimitar_cpf(CPF, CPFFormatado) :-
@@ -57,10 +56,4 @@ deletar_arquivo(Arquivo) :-
 string_to_atom(String, Atom) :-
     string_chars(String, Chars),
     atom_chars(Atom, Chars).
-
-
-limpar_terminal :-
-    current_prolog_flag(windows, true),
-    process_create(path(cmd), ['/C', 'cls'], [process(PID)]),
-    process_wait(PID, ), !.
 

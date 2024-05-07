@@ -6,13 +6,20 @@
     remover_funcionario/1,
     listar_todos_funcionarios/1,
     atualizarFuncionarioPorCPF/3,
-    criar_login/1
+    criar_login/1,
+    acesso_liberado/3,
+    exibir_solicitacoes/0
 ]).
+:- use_module(library(apply)).
 
 :- use_module(util).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(filesex)).
+
+:- use_module('alunoService', [
+        aluno_existe/1
+]).
 
 :- use_module(mainGestor, [menu_funcionario_g/0]).
 
@@ -221,6 +228,63 @@ atualizarFuncionarioPorCPF(CPF, NumeroCampo, NovoValor) :-
     ;   writeln("Funcionario nao existe!")
     ).
 
+% Liberar acesso
+
+acesso_liberado(Matricula, Hora, R):-
+
+    ler_aluno_retorna_aluno(Matricula, Aluno),
+
+    (plano_existe(Aluno.planoAluno) -> 
+        
+        ler_e_retora_plano(Aluno.planoAluno, Plano),
+
+        atom_number(Hora, HoraInt),
+        atom_number(Plano.horaEntradaMaxima, HoraMaximaInt),
+        atom_number(Plano.horaEntradaMinima, HoraMinimaInt),
+
+
+        ((HoraInt >= HoraMinimaInt) , (HoraInt =< HoraMaximaInt) ->
+            R = 1
+        ;
+            R = 0
+        )
+    ;
+
+        writeln("Plano invalido!")
+        
+    
+    ).
+
+    
+ler_aluno_retorna_aluno(Mat, Aluno):-
+    (aluno_existe(Mat) ->
+        atom_concat('BD/aluno/', Mat, Temp),
+        atom_concat(Temp, '.json', Arquivo),
+        open(Arquivo, read, Stream), 
+        json_read_dict(Stream, Aluno),
+        close(Stream)
+    ;
+        write("Aluno não encontrado")
+    ).
+
+ler_e_retora_plano(PlanoNome, Plano):-
+    (plano_existe(PlanoNome) ->
+        atom_concat('BD/plano/', PlanoNome, Temp),
+        atom_concat(Temp, '.json', Arquivo),
+        open(Arquivo, read, Stream), 
+        json_read_dict(Stream, Plano),
+        close(Stream)
+    ;
+        write("Plano não encontrado")
+    ).
+
+    
+
+plano_existe(Plano) :-
+    atom_concat('BD/plano/', Plano, Temp),
+    atom_concat(Temp, '.json', Arquivo),
+    exists_file(Arquivo).
+
 
 % VALIDAcÕES
 
@@ -241,3 +305,49 @@ all_positive(Number) :-
 verifica_nao_vazio(String) :-
     string_length(String, Length),
     Length > 0.
+
+% Predicado para carregar o arquivo JSON
+carregar_json(Arquivo, JSON) :-
+    open(Arquivo, read, Stream),
+    json_read_dict(Stream, JSON),
+    close(Stream).
+
+% Predicado para salvar o JSON de volta ao arquivo
+salvar_json(Arquivo, JSON) :-
+    open(Arquivo, write, Stream),
+    json_write_dict(Stream, JSON),
+    close(Stream).
+
+% Predicado para deletar uma solicitação com base na matrícula do aluno e no tipo de treino
+deletar_solicitacao(Matricula, TipoTreino, ArquivoEntrada, ArquivoSaida) :-
+    carregar_json(ArquivoEntrada, JSON),
+    select_dict(_{
+        matricula_aluno: Matricula,
+        tipo_treino: TipoTreino
+    }, JSON.solicitacoes, _, NovasSolicitacoes),
+    json_modify(JSON, solicitacoes, _, NovasSolicitacoes, NovoJSON),
+    salvar_json(ArquivoSaida, NovoJSON).
+
+exibir_solicitacoes :-
+    open('BD/solicitacoes/solicitacoes.json', read, Stream), 
+    json_read_dict(Stream, Solicitacao), 
+    close(Stream),
+    carregar_e_exibir_solicitacoes(Solicitacao).
+
+carregar_e_exibir_solicitacoes(Solicitacao) :-
+    exibir_solicitacoes(Solicitacao).
+
+exibir_solicitacoes(Dict) :-
+
+    (   get_dict(solicitacoes, Dict, Solicitacoes),
+        % Itera sobre cada treino e exibe seus detalhes
+        maplist(exibir_solicitacao, Solicitacoes)
+
+    ;   format("Não há informações de solicitacoes.~n")
+    ).
+
+exibir_solicitacao(Solicitacao) :-
+    format("\n =>Aluno: ~w~n", [Solicitacao.nome_aluno]),
+    format("   Matricula: ~w~n", [Solicitacao.matricula_aluno]),
+    format("   Tipo de treino: ~w~n", [Solicitacao.tipo_treino]).
+

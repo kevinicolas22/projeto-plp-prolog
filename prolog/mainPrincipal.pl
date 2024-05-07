@@ -9,7 +9,7 @@
 :- use_module(mainFuncionario, [menu_funcionario/0]).
 
 :- use_module(mainGestor, [menu_gestor/1]).
-
+:- use_module(mainAluno, [login_aluno/0,menu_aluno/1]).
 
 
 :- initialization(main).
@@ -35,13 +35,12 @@ main :-
         atom_number(TipoUsuario, TipoUsuarioInt),
         tipo_usuario_correto(TipoUsuarioInt, TipoUsuarioValidado),
         (   TipoUsuarioValidado =:= 1 ->
-            writeln('login_aluno')
+            login_aluno
         ;   loginMembro(TipoUsuarioValidado)
         
         )
 
     ).
-
        
 loginMembro(TipoUsuario):-
     

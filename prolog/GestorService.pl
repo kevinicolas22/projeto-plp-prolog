@@ -5,16 +5,20 @@
     atualizar_gestor_porCpf/3,
     listar_gestores/1,
     consultar_gestor/1,
-    /*imprimir_folha_pagamento/1,
-    gerar_relatorio/0,*/
+    imprimir_folha_pagamento/1,
+    gerar_relatorio/0,
     remover_gestor/1,
-    criar_login/1
-    
+    criar_login/1,
+    contar_alunos/1
 ]).
 
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(util).
+:- use_module('alunoService',[
+        qnt_alunos_premium/1,
+        qnt_alunos_gold/1,
+        qnt_alunos_light/1]).
 
 :- use_module(mainGestor, [menu_gestor_g/1]).
 
@@ -229,7 +233,7 @@ remover_gestor(_) :-
     writeln("Gestor nao existe ou nao é possível remover, pois deve existir pelo menos um gestor.").
 
 
-/*imprimir_folha_pagamento(CPF) :-
+imprimir_folha_pagamento(CPF) :-
     funcionario_existe(CPF),
     atom_concat('BD/funcionario/', CPF, Temp),
     atom_concat(Temp, '.json', Arquivo),
@@ -255,9 +259,99 @@ calcularBeneficio(SalarioBruto, Beneficio) :-
 funcionario_existe(CPF) :-
     atom_concat('BD/funcionario/', CPF, Temp),
     atom_concat(Temp, '.json', Arquivo),
-    exists_file(Arquivo).*/
+    exists_file(Arquivo).
 
 % gerar relatorio que calcula o valor total que a acdemia recebe(valor, plano), quantidade de alunos em cada plano, media de pagamento por aluno, receita total.
+
+alunosPlano(Path) :-
+    write("| Alunos plano Premium: " ),
+    qnt_alunos_premium(Path),
+    write(" | Alunos plano Gold: " ),
+    qnt_alunos_gold(Path),
+    write(" | Alunos plano Light: " ),
+    qnt_alunos_light(Path).
+
+soma_salarios_funcionarios(Path, SomaSalarios) :-
+    directory_files(Path, Arquivos),
+    processar_arquivos_funcionarios(Arquivos, Path, 0, SomaSalarios).
+
+processar_arquivos_funcionarios([], _, SomaSalarios, SomaSalarios).
+
+processar_arquivos_funcionarios([Arquivo|Arquivos], Diretorio, Acc, SomaSalarios) :-
+    atomic_list_concat([Diretorio, '/', Arquivo], Caminho),
+    ( string_concat(_, '.json', Arquivo)  ->  
+        open(Caminho, read, Stream), 
+        json_read_dict(Stream, Funcionario),
+        close(Stream),
+        (   get_dict(salario, Funcionario, SalarioStr),
+            atom_number(SalarioStr, Salario)
+        ->  NewAcc is Acc + Salario
+        ;   NewAcc is Acc
+        ),
+        processar_arquivos_funcionarios(Arquivos, Diretorio, NewAcc, SomaSalarios)
+    ;
+        processar_arquivos_funcionarios(Arquivos, Diretorio, Acc, SomaSalarios)
+    ).
+
+soma_pagamentos_planos(Path, SomaPagamentos) :-
+    directory_files(Path, Arquivos),
+    processar_arquivos_pagamentos(Arquivos, Path, 0, SomaPagamentos).
+
+processar_arquivos_pagamentos([], _, SomaPagamentos, SomaPagamentos).
+
+processar_arquivos_pagamentos([Arquivo|Arquivos], Diretorio, Acc, SomaPagamentos) :-
+    atomic_list_concat([Diretorio, '/', Arquivo], Caminho),
+    ( string_concat(_, '.json', Arquivo)  ->  
+        open(Caminho, read, Stream), 
+        json_read_dict(Stream, Pagamento),
+        close(Stream),
+        (   get_dict(valor, Pagamento, ValorStr),
+            atom_number(ValorStr, Valor)
+        ->  NewAcc is Acc + Valor
+        ;   NewAcc is Acc
+        ),
+        processar_arquivos_pagamentos(Arquivos, Diretorio, NewAcc, SomaPagamentos)
+    ;
+        processar_arquivos_pagamentos(Arquivos, Diretorio, Acc, SomaPagamentos)
+    ).
+
+receitaLiquida(PathSalarios, PathPagamentos, Diferenca) :-
+    soma_salarios_funcionarios(PathSalarios, SomaSalarios), 
+    soma_pagamentos_planos(PathPagamentos, SomaPagamentos), 
+
+    Diferenca is SomaPagamentos - SomaSalarios.
+
+contar_alunos(Quantidade) :-
+    directory_files('BD/aluno/', Files),
+    exclude(system_file, Files, Onlyaluns),
+    length(Onlyaluns, Quantidade).
+
+% Predicado auxiliar para excluir arquivos do sistema
+system_file(File) :-
+    sub_atom(File, 0, _, _, '.').
+
+mediaPagamento(PathPagamentos, Media) :-
+    contar_alunos(Quantidade),
+    soma_pagamentos_planos(PathPagamentos, SomaPagamentos),
+    Media is SomaPagamentos/Quantidade.
+
+gerar_relatorio:-
+    write("========== Relatorio Financeiro da CodeFit =========="),nl(),
+    alunosPlano('BD/aluno/'), nl(),
+    write("| Media de pagamento por aluno: " ),
+    mediaPagamento('BD/pagamentos/', Media),
+    write(Media), nl(),
+    write("| Total de salarios dos funcionarios: " ),
+    soma_salarios_funcionarios('BD/funcionario/', SomaSalarios),
+    write(SomaSalarios), nl(),
+    write("| Receita bruta: " ),
+    soma_pagamentos_planos('BD/pagamentos/', SomaPagamentos),
+    write(SomaPagamentos), nl(),
+    write("| Receita Liquida: "),
+    receitaLiquida('BD/funcionario/', 'BD/pagamentos/', Diferenca),
+    write(Diferenca), nl().
+
+
 
 % VALIDAcÕES
 

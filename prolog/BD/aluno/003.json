@@ -1,0 +1,22 @@
+{
+    "aulasAluno": ["boxe", "aula3" ],
+    "contatoAluno":"83988919144",
+    "cpfAluno":"06639930400",
+    "emDia":"true",
+    "enderecoAluno":"Rua prefeito Francisco camilo ,160",
+    "matricula":"001",
+    "nomeAluno":"bia",
+    "planoAluno":"premium",
+    "saldo":"255.0",
+    "senhaAluno":"jp14",
+    "treinos": [
+      {
+        "exercicios": ["Agachamento", "Supino", "Flexao de Braco" ],
+        "tipo":"Peito"
+      },
+      {
+        "exercicios": ["Corrida", "Abdominais", "Flexoes" ],
+        "tipo":"Costas"
+      }
+    ]
+  }
