@@ -7,8 +7,10 @@
     listar_todos_funcionarios/1,
     atualizarFuncionarioPorCPF/3,
     criar_login/1,
-    acesso_liberado/3
+    acesso_liberado/3,
+    exibir_solicitacoes/0
 ]).
+:- use_module(library(apply)).
 
 :- use_module(util).
 :- use_module(library(http/json)).
@@ -304,7 +306,27 @@ verifica_nao_vazio(String) :-
     string_length(String, Length),
     Length > 0.
 
+% Predicado para carregar o arquivo JSON
+carregar_json(Arquivo, JSON) :-
+    open(Arquivo, read, Stream),
+    json_read_dict(Stream, JSON),
+    close(Stream).
 
+% Predicado para salvar o JSON de volta ao arquivo
+salvar_json(Arquivo, JSON) :-
+    open(Arquivo, write, Stream),
+    json_write_dict(Stream, JSON),
+    close(Stream).
+
+% Predicado para deletar uma solicitação com base na matrícula do aluno e no tipo de treino
+deletar_solicitacao(Matricula, TipoTreino, ArquivoEntrada, ArquivoSaida) :-
+    carregar_json(ArquivoEntrada, JSON),
+    select_dict(_{
+        matricula_aluno: Matricula,
+        tipo_treino: TipoTreino
+    }, JSON.solicitacoes, _, NovasSolicitacoes),
+    json_modify(JSON, solicitacoes, _, NovasSolicitacoes, NovoJSON),
+    salvar_json(ArquivoSaida, NovoJSON).
 
 exibir_solicitacoes :-
     open('BD/solicitacoes/solicitacoes.json', read, Stream), 
@@ -327,5 +349,5 @@ exibir_solicitacoes(Dict) :-
 exibir_solicitacao(Solicitacao) :-
     format("\n =>Aluno: ~w~n", [Solicitacao.nome_aluno]),
     format("   Matricula: ~w~n", [Solicitacao.matricula_aluno]),
-    format("   Tipo de treino: ~w~n", [Solicitacao.tipo_treino]),
-    write('\n').
+    format("   Tipo de treino: ~w~n", [Solicitacao.tipo_treino]).
+
