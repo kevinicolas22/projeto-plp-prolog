@@ -2,12 +2,12 @@
   "aulasAluno": ["danca", "danca", "danca" ],
   "contatoAluno":"83988919144",
   "cpfAluno":"06639930400",
-  "emDia":"false",
+  "emDia":"true",
   "enderecoAluno":"Rua prefeito Francisco camilo ,160",
   "matricula":"001",
   "nomeAluno":"Kevin",
   "planoAluno":"gold",
-  "saldo":"215.0",
+  "saldo":"145.0",
   "senhaAluno":"jp14",
   "treinos": [
     {
