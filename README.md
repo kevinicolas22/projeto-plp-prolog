@@ -17,6 +17,17 @@ O CODEFIT, é um sistema de gerenciamento de academia que pode ser utilizado por
 É preciso que você tenha o SWI Prolog instalado e atualizado em sua máquina.
 Caso não tenha o swi, 
   esse vídeo irá lhe ensinar detalhadamente [instalação swi](https://www.youtube.com/watch?v=YzDpQOk2qvQ).
+E logo após, também, deve ter baixado uma pack, abaixo segue as instruções de como baixar:
+
+Insira no terminal do seu computador
+```bash
+  swipl
+```
+Se estiver instalado, e aparecer ?-
+```bash
+  pack_install(smtp).
+  // escolha o diretório e depois a letra Y
+```
 
 Tudo pronto? Vamos em frente!
 
