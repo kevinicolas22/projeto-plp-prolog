@@ -9,8 +9,32 @@
 :- use_module(funcionario).
 :- use_module(library(ansi_term)).
 :- use_module('GestorService',[
-        gerar_relatorio/0]).
-:- use_module('MaquinaService').
+        gerar_relatorio/0,
+        imprimir_folha_pagamento/1,
+        criar_gestor/0,
+        atualizar_gestor_porCpf/3,
+        listar_gestores/1,
+        consultar_gestor/1,
+        imprimir_folha_pagamento/1,
+        gerar_relatorio/0,
+        remover_gestor/1, 
+        contar_alunos/1]).
+:- use_module('MaquinaService', [
+        inicializar_arquivo_json_maquina/0,
+        adicionar_maquina/2,
+        criar_maquina/1,
+        listar_maquinas/1,
+        remover_maquina/1,
+        atualizar_maquina_porCodigo/3,
+        maquina_existe/1,
+        adicionar_maquina_reparo/1,
+        listar_maquinas_R/1,
+        remover_maquina_manutencao/1,
+        contar_maquinas/0,
+        maquina_reparo/2,
+        listar_datas/1,
+        consultar_maquina/1]).
+        
 :- use_module('funcionarioService', [
         adicionar_funcionario/1, 
         criar_funcionario/0, 
