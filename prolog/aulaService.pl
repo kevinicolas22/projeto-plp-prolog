@@ -82,13 +82,8 @@ escolher_plano(3, premium).
 
 imprimir_planos([]).
 imprimir_planos([Plano|Resto]) :-
-    write(Plano),
-    imprimir_planos_aux(Resto).
-
-imprimir_planos_aux([]).
-imprimir_planos_aux([Plano|Resto]):-
-    write(','), write(Plano),
-    imprimir_planos_aux(Resto).
+    writeln(Plano),
+    imprimir_planos(Resto).
 
 
 adicionar_aula(NovaAula):-
@@ -184,13 +179,14 @@ ler_e_mostrar_aula(Arquivo) :-
     open(Arquivo, read, Stream),
     json_read_dict(Stream, Aula),
     close(Stream),
-    format('=>~s~n', [Aula.nome]),
-    format('  Horario: ~s~n', [Aula.horario]),
-    write('  Valida para os planos: '),
+    format('Nome: ~s~n', [Aula.nome]),
+    format('Horario: ~s~n', [Aula.horario]),
+    writeln('Planos Escolhidos:'),
     imprimir_planos(Aula.planos),
-    write('\n\n').
+    writeln('').
 
 remover_aula(Nome) :-
+    
     (   aula_existe(Nome)
     ->  
         atom_concat('BD/aula/', Nome, Temp),

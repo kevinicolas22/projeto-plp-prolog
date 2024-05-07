@@ -154,7 +154,8 @@ realiza_pagamento(Aluno):-
      writeln('*Processando pagamento...*'),
      sleep(1),
      adiciona_pagamento(Aluno,Plano),
-     enviar_email(Aluno, Plano),
+     %Para enviar o email de pagamento, baixe a biblioteca smtp usando: pack_install(smtp) no terminal prolog (-?)
+     %enviar_email(Aluno, Plano),
      writeln('\e[32mPagamento realizado.\e[0m'),
      sleep(2),
      atualizaAlunoPelaMat(Aluno.matricula, 14, "true")

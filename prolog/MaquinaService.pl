@@ -15,6 +15,7 @@
     consultar_maquina/1
 ]).
 
+:- use_module('mainGestor', [menu_gestor/1, menu_maquina_g/1]).
 :- use_module(library(http/json)).
 :- use_module(library(apply)).
 :- use_module(library(http/json_convert)).
